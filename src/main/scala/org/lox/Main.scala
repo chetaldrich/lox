@@ -1,11 +1,7 @@
 package org.lox
 
 import scala.io.StdIn.readLine
-import java.io.IOException
-import java.nio.charset.Charset
-import java.nio.file.Files
-import java.nio.file.Paths
-import scala.util.control.Breaks.break
+import scala.io.Source.fromFile
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -16,10 +12,9 @@ object Main {
     }
   }
 
-  @throws[IOException]
   private def runFile(path: String): Unit = {
-    val bytes = Files.readAllBytes(Paths.get(path))
-    run(new String(bytes, Charset.defaultCharset))
+    val source = fromFile(path)
+    run(try source.mkString finally source.close())
   }
 
   private def runPrompt(): Unit = {
