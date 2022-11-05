@@ -20,7 +20,8 @@ tasks.withType<Wrapper> {
 }
 
 task<JavaExec>("run") {
-   classpath = sourceSets["main"].runtimeClasspath
-   main = "org.lox.Main"
-   args = emptyList()
+    classpath = sourceSets["main"].runtimeClasspath
+    main = "org.lox.Main"
+    standardInput = System.`in`
+    args = emptyList()
 }
