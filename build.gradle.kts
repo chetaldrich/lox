@@ -1,4 +1,4 @@
-group = "template"
+group = "lox"
 version = "0.1.0-SNAPSHOT"
 
 plugins {
