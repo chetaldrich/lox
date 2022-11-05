@@ -28,6 +28,7 @@ object Main {
   }
 
   private def run(source: String): Unit = {
-    println(source)
+    val tokens = source.split("\\s+")
+    tokens.foreach(println)
   }
 }
