@@ -2,16 +2,22 @@
 
 An interpreter for the lox language written in Scala.
 
+## Installation
+
+```sh
+brew install sbt
+```
+
 ## Usage
 
 Running the interactive prompt:
 
 ```
-./gradlew -q --console=plain run
+sbt run
 ```
 
 Run a file:
 
 ```
-./gradlew -q --console=plain run --args="file.lox"
+sbt "run <file>"
 ```
