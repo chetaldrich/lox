@@ -77,6 +77,10 @@ object TokenType {
     override val lexeme: String = "<="
   }
 
+  case object Slash extends KeywordLexeme {
+    override val lexeme: String = "/"
+  }
+
   case object Invalid extends TokenType
 }
 

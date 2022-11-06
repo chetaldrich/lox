@@ -23,6 +23,7 @@ object Scanner extends RegexParsers {
     TokenType.Greater,
     TokenType.LessEqual,
     TokenType.Less,
+    TokenType.Slash,
   )
 
   val constantLexemes: Parser[Token] = keywordLexemes
