@@ -6,7 +6,15 @@ object Scanner extends RegexParsers {
   // A list of all the keywords in the language.
   private val keywordLexemes = List(
     LeftParen,
-    RightParen
+    RightParen,
+    LeftBrace,
+    RightBrace,
+    Comma,
+    Dot,
+    Minus,
+    Plus,
+    Semicolon,
+    Star,
   )
 
   def constantLexemes: Parser[Token] = keywordLexemes
