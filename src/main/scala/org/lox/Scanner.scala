@@ -1,23 +1,32 @@
 package org.lox
 
-import org.lox.TokenType._
-
-// https://www.scala-lang.org/api/2.12.8/scala-parser-combinators/scala/util/parsing/combinator/Parsers.html
 import scala.util.parsing.combinator._
 
-object SimpleParser extends RegexParsers {
-  def word: Parser[String] = """[a-z]+""".r ^^ {
-    _.toString
-  }
+object Scanner extends RegexParsers {
+  // A list of all the keywords in the language.
+  private val keywordLexemes = List(
+    LeftParen,
+    RightParen
+  )
+
+  def constantLexemes: Parser[Token] = keywordLexemes
+    // converts the list of keyword lexemes to a token if the keyword lexeme matches the input
+    .map(kwl => kwl.lexeme ^^ { _ => Token(kwl, kwl.lexeme, null, 0) })
+    // converts it to a parser that checks for any of the tokens in keywordLexemes
+    .reduce(_ | _)
+
+  // creates a parser that searches for multiple tokens in the input of the input parser, which in
+  // this case is the constantLexemes parser
+  val parser: Parser[List[Token]] = rep(constantLexemes)
 }
 
 class Scanner(val source: String) {
-  private val whitespace = "\\s+".r
-
+  // generates a sequence of tokens from the source code using the parser combinator defined above.
   def apply(): Seq[Token] = {
-    SimpleParser.parse(SimpleParser.word, source) match {
-      case SimpleParser.Success(result, _) => Seq(Token(IDENTIFIER, result, null, 1))
-      case SimpleParser.NoSuccess(msg, _) => throw new Exception(msg)
+    Scanner.parse(Scanner.parser, source) match {
+      case Scanner.Success(matched, _) => matched
+      case Scanner.Failure(msg, _) => throw new Exception(msg)
+      case Scanner.Error(msg, _) => throw new Exception(msg)
       case _ => throw new Exception("Unknown error")
     }
   }
