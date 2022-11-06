@@ -4,21 +4,85 @@ sealed trait KeywordLexeme extends TokenType {
   val lexeme: String
 }
 
-sealed trait TokenType {
+object TokenType {
+  case object LeftParen extends KeywordLexeme {
+    override val lexeme: String = "("
+  }
 
+  case object RightParen extends KeywordLexeme {
+    override val lexeme: String = ")"
+  }
+
+  case object LeftBrace extends KeywordLexeme {
+    override val lexeme: String = "{"
+  }
+
+  case object RightBrace extends KeywordLexeme {
+    override val lexeme: String = "}"
+  }
+
+  case object Comma extends KeywordLexeme {
+    override val lexeme: String = ","
+  }
+
+  case object Dot extends KeywordLexeme {
+    override val lexeme: String = "."
+  }
+
+  case object Minus extends KeywordLexeme {
+    override val lexeme: String = "-"
+  }
+
+  case object Plus extends KeywordLexeme {
+    override val lexeme: String = "+"
+  }
+
+  case object Semicolon extends KeywordLexeme {
+    override val lexeme: String = ";"
+  }
+
+  case object Star extends KeywordLexeme {
+    override val lexeme: String = "*"
+  }
+
+  case object Bang extends KeywordLexeme {
+    override val lexeme: String = "!"
+  }
+
+  case object BangEqual extends KeywordLexeme {
+    override val lexeme: String = "!="
+  }
+
+  case object Equal extends KeywordLexeme {
+    override val lexeme: String = "="
+  }
+
+  case object EqualEqual extends KeywordLexeme {
+    override val lexeme: String = "=="
+  }
+
+  case object Greater extends KeywordLexeme {
+    override val lexeme: String = ">"
+  }
+
+  case object GreaterEqual extends KeywordLexeme {
+    override val lexeme: String = ">="
+  }
+
+  case object Less extends KeywordLexeme {
+    override val lexeme: String = "<"
+  }
+
+  case object LessEqual extends KeywordLexeme {
+    override val lexeme: String = "<="
+  }
+
+}
+
+sealed trait TokenType {
   //  case object SLASH extends KeywordLexeme {
   //    override val lexeme: String = "/"
   //  }
-
-  // One or two character tokens.
-  //  BANG,
-  //  BANG_EQUAL,
-  //  EQUAL,
-  //  EQUAL_EQUAL,
-  //  GREATER,
-  //  GREATER_EQUAL,
-  //  LESS,
-  //  LESS_EQUAL,
 
   // Literals.
   //      IDENTIFIER,
@@ -45,42 +109,3 @@ sealed trait TokenType {
   //  EOF
 }
 
-case object LeftParen extends KeywordLexeme {
-  override val lexeme: String = "("
-}
-
-case object RightParen extends KeywordLexeme {
-  override val lexeme: String = ")"
-}
-
-case object LeftBrace extends KeywordLexeme {
-  override val lexeme: String = "{"
-}
-
-case object RightBrace extends KeywordLexeme {
-  override val lexeme: String = "}"
-}
-
-case object Comma extends KeywordLexeme {
-  override val lexeme: String = ","
-}
-
-case object Dot extends KeywordLexeme {
-  override val lexeme: String = "."
-}
-
-case object Minus extends KeywordLexeme {
-  override val lexeme: String = "-"
-}
-
-case object Plus extends KeywordLexeme {
-  override val lexeme: String = "+"
-}
-
-case object Semicolon extends KeywordLexeme {
-  override val lexeme: String = ";"
-}
-
-case object Star extends KeywordLexeme {
-  override val lexeme: String = "*"
-}

@@ -5,16 +5,24 @@ import scala.util.parsing.combinator._
 object Scanner extends RegexParsers {
   // A list of all the keywords in the language.
   private val keywordLexemes = List(
-    LeftParen,
-    RightParen,
-    LeftBrace,
-    RightBrace,
-    Comma,
-    Dot,
-    Minus,
-    Plus,
-    Semicolon,
-    Star,
+    TokenType.LeftParen,
+    TokenType.RightParen,
+    TokenType.LeftBrace,
+    TokenType.RightBrace,
+    TokenType.Comma,
+    TokenType.Dot,
+    TokenType.Minus,
+    TokenType.Plus,
+    TokenType.Semicolon,
+    TokenType.Star,
+    TokenType.BangEqual,
+    TokenType.Bang,
+    TokenType.EqualEqual,
+    TokenType.Equal,
+    TokenType.GreaterEqual,
+    TokenType.Greater,
+    TokenType.LessEqual,
+    TokenType.Less,
   )
 
   def constantLexemes: Parser[Token] = keywordLexemes
