@@ -1,8 +1,11 @@
 package org.lox
 
+import scala.util.matching.Regex
 import scala.util.parsing.combinator._
 
 object Scanner extends RegexParsers {
+  override val whiteSpace: Regex = """(\s+|//.*)+""".r
+
   // A list of all the keywords in the language.
   private val constantLexemes = List(
     TokenType.LeftParen,
@@ -34,8 +37,7 @@ object Scanner extends RegexParsers {
 
   private val invalid: Parser[Token] = ".+".r ^^ { result => Token(TokenType.Invalid, result, null, 0) }
 
-  // creates a parser that searches for multiple tokens in the input of the input parser, which in
-  // this case is the constantLexemes parser
+  // creates a combinator that searches for multiple tokens
   val parser: Parser[List[Token]] = rep(constants | invalid)
 }
 

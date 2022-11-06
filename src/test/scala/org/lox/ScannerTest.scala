@@ -28,10 +28,12 @@ class ScannerTest extends AnyFlatSpec with should.Matchers with TableDrivenPrope
     (">=", Seq(Token(TokenType.GreaterEqual, ">=", null, 0))),
     ("<=", Seq(Token(TokenType.LessEqual, "<=", null, 0))),
     ("/", Seq(Token(TokenType.Slash, "/", null, 0))),
+    ("// this is a comment.\n", Seq()),
+    ("// this is a comment.\n*", Seq(Token(TokenType.Star, "*", null, 0))),
   )
 
   forAll(scannerTests) { (input, expected) =>
-    it should s"scan $input successfully" in {
+    it should s"scan \"$input\" successfully" in {
       val scanner = new Scanner(input)
       scanner.apply should be(expected)
     }
