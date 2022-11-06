@@ -77,6 +77,7 @@ object TokenType {
     override val lexeme: String = "<="
   }
 
+  case object Invalid extends TokenType
 }
 
 sealed trait TokenType {

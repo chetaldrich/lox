@@ -35,4 +35,11 @@ class ScannerTest extends AnyFlatSpec with should.Matchers with TableDrivenPrope
       scanner.apply should be(expected)
     }
   }
+
+  it should "error on input 2@=" in {
+    val scanner = new Scanner("2@=")
+    assertThrows[Exception] {
+      scanner.apply()
+    }
+  }
 }
