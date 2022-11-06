@@ -4,7 +4,7 @@ import scala.util.parsing.combinator._
 
 object Scanner extends RegexParsers {
   // A list of all the keywords in the language.
-  private val keywordLexemes = List(
+  private val constantLexemes = List(
     TokenType.LeftParen,
     TokenType.RightParen,
     TokenType.LeftBrace,
@@ -26,17 +26,17 @@ object Scanner extends RegexParsers {
     TokenType.Slash,
   )
 
-  val constantLexemes: Parser[Token] = keywordLexemes
+  val constants: Parser[Token] = constantLexemes
     // converts the list of keyword lexemes to a token if the keyword lexeme matches the input
     .map(kwl => kwl.lexeme ^^ { _ => Token(kwl, kwl.lexeme, null, 0) })
-    // converts it to a parser that checks for any of the tokens in keywordLexemes
+    // converts it to a parser that checks for any of the tokens in constantLexemes
     .reduce(_ | _)
 
-  private val invalidLexeme: Parser[Token] = ".+".r ^^ { result => Token(TokenType.Invalid, result, null, 0) }
+  private val invalid: Parser[Token] = ".+".r ^^ { result => Token(TokenType.Invalid, result, null, 0) }
 
   // creates a parser that searches for multiple tokens in the input of the input parser, which in
   // this case is the constantLexemes parser
-  val parser: Parser[List[Token]] = rep(constantLexemes | invalidLexeme)
+  val parser: Parser[List[Token]] = rep(constants | invalid)
 }
 
 class Scanner(val source: String) {

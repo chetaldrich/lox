@@ -1,83 +1,83 @@
 package org.lox
 
-sealed trait KeywordLexeme extends TokenType {
+sealed trait ConstantLexeme extends TokenType {
   val lexeme: String
 }
 
 object TokenType {
-  case object LeftParen extends KeywordLexeme {
+  case object LeftParen extends ConstantLexeme {
     override val lexeme: String = "("
   }
 
-  case object RightParen extends KeywordLexeme {
+  case object RightParen extends ConstantLexeme {
     override val lexeme: String = ")"
   }
 
-  case object LeftBrace extends KeywordLexeme {
+  case object LeftBrace extends ConstantLexeme {
     override val lexeme: String = "{"
   }
 
-  case object RightBrace extends KeywordLexeme {
+  case object RightBrace extends ConstantLexeme {
     override val lexeme: String = "}"
   }
 
-  case object Comma extends KeywordLexeme {
+  case object Comma extends ConstantLexeme {
     override val lexeme: String = ","
   }
 
-  case object Dot extends KeywordLexeme {
+  case object Dot extends ConstantLexeme {
     override val lexeme: String = "."
   }
 
-  case object Minus extends KeywordLexeme {
+  case object Minus extends ConstantLexeme {
     override val lexeme: String = "-"
   }
 
-  case object Plus extends KeywordLexeme {
+  case object Plus extends ConstantLexeme {
     override val lexeme: String = "+"
   }
 
-  case object Semicolon extends KeywordLexeme {
+  case object Semicolon extends ConstantLexeme {
     override val lexeme: String = ";"
   }
 
-  case object Star extends KeywordLexeme {
+  case object Star extends ConstantLexeme {
     override val lexeme: String = "*"
   }
 
-  case object Bang extends KeywordLexeme {
+  case object Bang extends ConstantLexeme {
     override val lexeme: String = "!"
   }
 
-  case object BangEqual extends KeywordLexeme {
+  case object BangEqual extends ConstantLexeme {
     override val lexeme: String = "!="
   }
 
-  case object Equal extends KeywordLexeme {
+  case object Equal extends ConstantLexeme {
     override val lexeme: String = "="
   }
 
-  case object EqualEqual extends KeywordLexeme {
+  case object EqualEqual extends ConstantLexeme {
     override val lexeme: String = "=="
   }
 
-  case object Greater extends KeywordLexeme {
+  case object Greater extends ConstantLexeme {
     override val lexeme: String = ">"
   }
 
-  case object GreaterEqual extends KeywordLexeme {
+  case object GreaterEqual extends ConstantLexeme {
     override val lexeme: String = ">="
   }
 
-  case object Less extends KeywordLexeme {
+  case object Less extends ConstantLexeme {
     override val lexeme: String = "<"
   }
 
-  case object LessEqual extends KeywordLexeme {
+  case object LessEqual extends ConstantLexeme {
     override val lexeme: String = "<="
   }
 
-  case object Slash extends KeywordLexeme {
+  case object Slash extends ConstantLexeme {
     override val lexeme: String = "/"
   }
 
@@ -85,14 +85,10 @@ object TokenType {
 }
 
 sealed trait TokenType {
-  //  case object SLASH extends KeywordLexeme {
-  //    override val lexeme: String = "/"
-  //  }
-
   // Literals.
-  //      IDENTIFIER,
-  //    STRING,
-  //    NUMBER,
+  // IDENTIFIER,
+  // STRING,
+  // NUMBER,
   //
   //  // Keywords.
   //  AND,
