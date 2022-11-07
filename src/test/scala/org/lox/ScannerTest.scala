@@ -30,6 +30,8 @@ class ScannerTest extends AnyFlatSpec with should.Matchers with TableDrivenPrope
     ("/", Seq(Token(TokenType.Slash, "/", null, 0))),
     ("// this is a comment.\n", Seq()),
     ("// this is a comment.\n*", Seq(Token(TokenType.Star, "*", null, 0))),
+    ("\t \r \n", Seq()),
+    ("\"this is a string literal 123\"", Seq(Token(TokenType.String, "\"this is a string literal 123\"", "this is a string literal 123", 0))),
   )
 
   forAll(scannerTests) { (input, expected) =>

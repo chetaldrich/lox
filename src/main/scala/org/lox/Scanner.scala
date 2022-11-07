@@ -35,10 +35,14 @@ object Scanner extends RegexParsers {
     // converts it to a parser that checks for any of the tokens in constantLexemes
     .reduce(_ | _)
 
+  private val stringLiteral: Parser[Token] = "\".*\"".r ^^ {
+    s => Token(TokenType.String, s, s.substring(1, s.length - 1), 0)
+  }
+
   private val invalid: Parser[Token] = ".+".r ^^ { result => Token(TokenType.Invalid, result, null, 0) }
 
   // creates a combinator that searches for multiple tokens
-  val parser: Parser[List[Token]] = rep(constants | invalid)
+  val parser: Parser[List[Token]] = rep(constants | stringLiteral | invalid)
 }
 
 class Scanner(val source: String) {

@@ -81,6 +81,8 @@ object TokenType {
     override val lexeme: String = "/"
   }
 
+  case object String extends TokenType
+
   case object Invalid extends TokenType
 }
 
