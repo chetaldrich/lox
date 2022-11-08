@@ -83,14 +83,14 @@ object TokenType {
 
   case object String extends TokenType
 
+  case object Number extends TokenType
+
   case object Invalid extends TokenType
 }
 
 sealed trait TokenType {
   // Literals.
   // IDENTIFIER,
-  // STRING,
-  // NUMBER,
   //
   //  // Keywords.
   //  AND,

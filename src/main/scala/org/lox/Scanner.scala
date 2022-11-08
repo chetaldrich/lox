@@ -39,10 +39,14 @@ object Scanner extends RegexParsers {
     s => Token(TokenType.String, s, s.substring(1, s.length - 1), 0)
   }
 
+  private val numberLiteral: Parser[Token] = """\d+(\.\d+)?""".r ^^ {
+    s => Token(TokenType.Number, s, s.toDouble, 0)
+  }
+
   private val invalid: Parser[Token] = ".+".r ^^ { result => Token(TokenType.Invalid, result, null, 0) }
 
   // creates a combinator that searches for multiple tokens
-  val parser: Parser[List[Token]] = rep(constants | stringLiteral | invalid)
+  val parser: Parser[List[Token]] = rep(constants | stringLiteral | numberLiteral | invalid)
 }
 
 class Scanner(val source: String) {
