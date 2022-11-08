@@ -85,6 +85,8 @@ object TokenType {
 
   case object Number extends TokenType
 
+  case object Identifier extends TokenType
+
   case object Invalid extends TokenType
 }
 

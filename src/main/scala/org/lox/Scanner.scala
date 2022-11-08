@@ -43,10 +43,14 @@ object Scanner extends RegexParsers {
     s => Token(TokenType.Number, s, s.toDouble, 0)
   }
 
+  private val identifier: Parser[Token] = """[a-zA-Z_]\w*""".r ^^ {
+    s => Token(TokenType.Identifier, s, null, 0)
+  }
+
   private val invalid: Parser[Token] = ".+".r ^^ { result => Token(TokenType.Invalid, result, null, 0) }
 
   // creates a combinator that searches for multiple tokens
-  val parser: Parser[List[Token]] = rep(constants | stringLiteral | numberLiteral | invalid)
+  val parser: Parser[List[Token]] = rep(constants | stringLiteral | numberLiteral | identifier | invalid)
 }
 
 class Scanner(val source: String) {

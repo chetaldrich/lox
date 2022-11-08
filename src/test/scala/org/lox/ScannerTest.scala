@@ -35,6 +35,7 @@ class ScannerTest extends AnyFlatSpec with should.Matchers with TableDrivenPrope
     ("123.45", Seq(Token(TokenType.Number, "123.45", 123.45, 0))),
     ("12", Seq(Token(TokenType.Number, "12", 12.toDouble, 0))),
     ("1.2", Seq(Token(TokenType.Number, "1.2", 1.2, 0))),
+    ("orchid = 3", Seq(Token(TokenType.Identifier, "orchid", null, 0), Token(TokenType.Equal, "=", null, 0), Token(TokenType.Number, "3", 3.0, 0))),
   )
 
   forAll(scannerTests) { (input, expected) =>
