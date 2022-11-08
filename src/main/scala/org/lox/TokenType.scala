@@ -1,7 +1,13 @@
 package org.lox
 
+import scala.util.matching.Regex
+
 sealed trait ConstantLexeme extends TokenType {
   val lexeme: String
+}
+
+sealed trait RegexLexeme extends TokenType {
+  val lexeme: Regex
 }
 
 object TokenType {
@@ -88,29 +94,73 @@ object TokenType {
   case object Identifier extends TokenType
 
   case object Invalid extends TokenType
+
+  case object And extends RegexLexeme {
+    override val lexeme: Regex = "and\\b".r
+  }
+
+  case object Class extends RegexLexeme {
+    override val lexeme: Regex = "class\\b".r
+  }
+
+  case object Else extends RegexLexeme {
+    override val lexeme: Regex = "else\\b".r
+  }
+
+  case object False extends RegexLexeme {
+    override val lexeme: Regex = "false\\b".r
+  }
+
+  case object Fun extends RegexLexeme {
+    override val lexeme: Regex = "fun\\b".r
+  }
+
+  case object For extends RegexLexeme {
+    override val lexeme: Regex = "for\\b".r
+  }
+
+  case object If extends RegexLexeme {
+    override val lexeme: Regex = "if\\b".r
+  }
+
+  case object Nil extends RegexLexeme {
+    override val lexeme: Regex = "nil\\b".r
+  }
+
+  case object Or extends RegexLexeme {
+    override val lexeme: Regex = "or\\b".r
+  }
+
+  case object Print extends RegexLexeme {
+    override val lexeme: Regex = "print\\b".r
+  }
+
+  case object Return extends RegexLexeme {
+    override val lexeme: Regex = "return\\b".r
+  }
+
+  case object Super extends RegexLexeme {
+    override val lexeme: Regex = "super\\b".r
+  }
+
+  case object This extends RegexLexeme {
+    override val lexeme: Regex = "this\\b".r
+  }
+
+  case object True extends RegexLexeme {
+    override val lexeme: Regex = "true\\b".r
+  }
+
+  case object Var extends RegexLexeme {
+    override val lexeme: Regex = "var\\b".r
+  }
+
+  case object While extends RegexLexeme {
+    override val lexeme: Regex = "while\\b".r
+  }
+
+  case object EOF extends TokenType
 }
 
-sealed trait TokenType {
-  // Literals.
-  // IDENTIFIER,
-  //
-  //  // Keywords.
-  //  AND,
-  //  CLASS,
-  //  ELSE,
-  //  FALSE,
-  //  FUN,
-  //  FOR,
-  //  IF,
-  //  NIL,
-  //  OR,
-  //  PRINT,
-  //  RETURN,
-  //  SUPER,
-  //  THIS,
-  //  TRUE,
-  //  VAR,
-  //  WHILE,
-  //  EOF
-}
+sealed trait TokenType
 

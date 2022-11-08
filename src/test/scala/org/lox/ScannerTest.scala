@@ -36,6 +36,22 @@ class ScannerTest extends AnyFlatSpec with should.Matchers with TableDrivenPrope
     ("12", Seq(Token(TokenType.Number, "12", 12.toDouble, 0))),
     ("1.2", Seq(Token(TokenType.Number, "1.2", 1.2, 0))),
     ("orchid = 3", Seq(Token(TokenType.Identifier, "orchid", null, 0), Token(TokenType.Equal, "=", null, 0), Token(TokenType.Number, "3", 3.0, 0))),
+    ("or orchid", Seq(Token(TokenType.Or, "or", null, 0), Token(TokenType.Identifier, "orchid", null, 0))),
+    ("and andover", Seq(Token(TokenType.And, "and", null, 0), Token(TokenType.Identifier, "andover", null, 0))),
+    ("class classes", Seq(Token(TokenType.Class, "class", null, 0), Token(TokenType.Identifier, "classes", null, 0))),
+    ("false falsehood", Seq(Token(TokenType.False, "false", null, 0), Token(TokenType.Identifier, "falsehood", null, 0))),
+    ("else elsevier", Seq(Token(TokenType.Else, "else", null, 0), Token(TokenType.Identifier, "elsevier", null, 0))),
+    ("fun function", Seq(Token(TokenType.Fun, "fun", null, 0), Token(TokenType.Identifier, "function", null, 0))),
+    ("for fortune", Seq(Token(TokenType.For, "for", null, 0), Token(TokenType.Identifier, "fortune", null, 0))),
+    ("if iframe", Seq(Token(TokenType.If, "if", null, 0), Token(TokenType.Identifier, "iframe", null, 0))),
+    ("nil nilable", Seq(Token(TokenType.Nil, "nil", null, 0), Token(TokenType.Identifier, "nilable", null, 0))),
+    ("print printing", Seq(Token(TokenType.Print, "print", null, 0), Token(TokenType.Identifier, "printing", null, 0))),
+    ("return returnee", Seq(Token(TokenType.Return, "return", null, 0), Token(TokenType.Identifier, "returnee", null, 0))),
+    ("super superlative", Seq(Token(TokenType.Super, "super", null, 0), Token(TokenType.Identifier, "superlative", null, 0))),
+    ("this thistle", Seq(Token(TokenType.This, "this", null, 0), Token(TokenType.Identifier, "thistle", null, 0))),
+    ("true trueness", Seq(Token(TokenType.True, "true", null, 0), Token(TokenType.Identifier, "trueness", null, 0))),
+    ("var variable", Seq(Token(TokenType.Var, "var", null, 0), Token(TokenType.Identifier, "variable", null, 0))),
+    ("while whiles", Seq(Token(TokenType.While, "while", null, 0), Token(TokenType.Identifier, "whiles", null, 0))),
   )
 
   forAll(scannerTests) { (input, expected) =>
