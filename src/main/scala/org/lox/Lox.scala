@@ -1,5 +1,8 @@
 package org.lox
 
+import org.lox.parser.{AstPrinter, Expr, Parser}
+import org.lox.TokenType.EOF
+
 import scala.io.StdIn.readLine
 import scala.io.Source.fromFile
 
@@ -16,7 +19,7 @@ object Lox {
 
   private def runFile(path: String): Unit = {
     val source = fromFile(path)
-    run(try source.mkString finally source.close())
+    println(run(try source.mkString finally source.close()))
   }
 
   private def runPrompt(): Unit = {
@@ -25,18 +28,24 @@ object Lox {
       print("slox> ")
       val line = readLine()
       if (line == null) continue = false
-      else run(line, shouldError = false)
+      else println(run(line, shouldError = false))
     }
   }
 
-  private def run(source: String, shouldError: Boolean = true): Unit = {
-    val tokens = source.split("\\s+")
-    tokens.foreach(println)
+  def run(source: String, shouldError: Boolean = true): String = {
+    val tokens: Seq[Token] = Scanner(source).apply
+    val expression: Expr = new Parser(tokens).parse
     if (hadError && shouldError) System.exit(65)
+    new AstPrinter().print(expression)
   }
 
-  private def error(line: Int, message: String): Unit = {
+  def error(line: Int, message: String): Unit = {
     report(line, "", message)
+  }
+
+  def error(token: Token, message: String): Unit = token.tokenType match {
+    case EOF => report(token.line, " at end", message)
+    case _ => report(token.line, s" at '${token.lexeme}'", message)
   }
 
   private def report(line: Int, where: String, message: String): Unit = {

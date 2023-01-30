@@ -80,15 +80,17 @@ object Scanner extends RegexParsers {
   val tokenizer: Parser[List[Token]] = rep(constants | keywords | identifier | stringLiteral | numberLiteral | invalid)
 }
 
-class Scanner(val source: String) {
+case class Scanner(source: String) {
   // generates a sequence of tokens from the source code using the parser combinator defined above.
-  def apply(): Seq[Token] = {
+  def apply: Seq[Token] = {
     Scanner.parse(Scanner.tokenizer, source) match {
-      case Scanner.Success(matched, _) =>
+      case Scanner.Success(matched: Seq[Token], _) =>
         if (matched.exists(_.tokenType == TokenType.Invalid)) {
           val invalidToken = matched.find(_.tokenType == TokenType.Invalid).get.lexeme
           throw new Exception(s"Invalid token found: $invalidToken")
-        } else matched
+        } else {
+          matched :+ Token(TokenType.EOF, null, null, 0)
+        }
       case Scanner.Failure(msg, _) => throw new Exception(msg)
       case Scanner.Error(msg, _) => throw new Exception(msg)
       case _ => throw new Exception("Unknown error")
