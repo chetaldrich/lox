@@ -3,6 +3,10 @@ package org.lox.parser
 class AstPrinter extends Visitor[String] {
   override def visitBinaryExpr(expr: Binary): String = parenthesize(expr.operator.lexeme, expr.left, expr.right)
 
+  override def visitTernaryExpr(expr: Ternary): String = {
+    parenthesize("ternary", expr.condition, expr.`then`, expr.otherwise)
+  }
+
   override def visitGroupingExpr(expr: Grouping): String = parenthesize("group", expr.expression)
 
   override def visitLiteralExpr(expr: Literal): String = {
@@ -17,4 +21,5 @@ class AstPrinter extends Visitor[String] {
   private def parenthesize(name: String, exprs: Expr*): String = {
     s"($name ${exprs.map(_.accept(this)).mkString(" ")})"
   }
+
 }

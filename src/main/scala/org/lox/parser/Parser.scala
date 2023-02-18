@@ -17,7 +17,18 @@ class Parser(tokens: Seq[Token], private var current: Int = 0) {
     case e: ParseError => null
   }
 
-  private def expression: Expr = equality
+  private def expression: Expr = ternary
+
+  private def ternary: Expr = {
+    val expr = equality
+    if (`match`(QuestionMark)) {
+      val `then` = equality
+      if (`match`(Colon)) {
+        val otherwise = equality
+        Ternary(expr, `then`, otherwise)
+      } else expr
+    } else expr
+  }
 
   private def equality: Expr = matchWhile(comparison, BangEqual, EqualEqual)
 

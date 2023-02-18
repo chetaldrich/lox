@@ -51,6 +51,14 @@ object TokenType {
     override val lexeme: String = "*"
   }
 
+  case object QuestionMark extends ConstantLexeme {
+    override val lexeme: String = "?"
+  }
+
+  case object Colon extends ConstantLexeme {
+    override val lexeme: String = ":"
+  }
+
   case object Bang extends ConstantLexeme {
     override val lexeme: String = "!"
   }

@@ -23,6 +23,8 @@ class ScannerTest extends AnyFlatSpec with should.Matchers with TableDrivenPrope
     ("-", Seq(Token(TokenType.Minus, "-", null, 0), eof)),
     ("+", Seq(Token(TokenType.Plus, "+", null, 0), eof)),
     (";", Seq(Token(TokenType.Semicolon, ";", null, 0), eof)),
+    (":", Seq(Token(TokenType.Colon, ":", null, 0), eof)),
+    ("?", Seq(Token(TokenType.QuestionMark, "?", null, 0), eof)),
     ("*", Seq(Token(TokenType.Star, "*", null, 0), eof)),
     ("!=", Seq(Token(TokenType.BangEqual, "!=", null, 0), eof)),
     ("!", Seq(Token(TokenType.Bang, "!", null, 0), eof)),

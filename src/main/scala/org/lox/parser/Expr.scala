@@ -7,6 +7,9 @@ sealed trait Expr {
 }
 
 trait Visitor[R] {
+
+  def visitTernaryExpr(expr: Ternary): R
+
   def visitBinaryExpr(expr: Binary): R
 
   def visitGroupingExpr(expr: Grouping): R
@@ -14,6 +17,10 @@ trait Visitor[R] {
   def visitLiteralExpr(expr: Literal): R
 
   def visitUnaryExpr(expr: Unary): R
+}
+
+case class Ternary(condition: Expr, `then`: Expr, otherwise: Expr) extends Expr {
+  def accept[R](visitor: Visitor[R]): R = visitor.visitTernaryExpr(this)
 }
 
 case class Binary(left: Expr, operator: Token, right: Expr) extends Expr {

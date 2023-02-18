@@ -20,6 +20,8 @@ object Scanner extends RegexParsers {
     TokenType.Star,
     TokenType.BangEqual,
     TokenType.Bang,
+    TokenType.QuestionMark,
+    TokenType.Colon,
     TokenType.EqualEqual,
     TokenType.Equal,
     TokenType.GreaterEqual,

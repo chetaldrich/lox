@@ -1,7 +1,8 @@
 package org.lox
 
-import org.lox.TokenType.{Bang, BangEqual, Greater, GreaterEqual, Less, LessEqual, Minus, Plus, Slash, Star}
-import org.lox.parser.{Binary, Expr, Grouping, Literal, Unary, Visitor}
+import org.lox.TokenType._
+import org.lox.parser._
+
 import scala.util.Try
 
 class Interpreter extends Visitor[Any] {
@@ -39,6 +40,11 @@ class Interpreter extends Visitor[Any] {
   override def visitGroupingExpr(expr: Grouping): Any = expr.accept(this)
 
   override def visitLiteralExpr(expr: Literal): Any = expr.value
+
+  override def visitTernaryExpr(expr: Ternary): Any = {
+    if (isTruthy(evaluate(expr.condition))) evaluate(expr.`then`)
+    else evaluate(expr.otherwise)
+  }
 
   override def visitUnaryExpr(expr: Unary): Any = {
     val right = evaluate(expr.right)
@@ -79,4 +85,5 @@ class Interpreter extends Visitor[Any] {
     case null | false => false
     case _ => true
   }
+
 }
