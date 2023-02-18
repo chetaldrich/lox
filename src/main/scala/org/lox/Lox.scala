@@ -1,13 +1,15 @@
 package org.lox
 
-import org.lox.parser.{AstPrinter, Expr, Parser}
 import org.lox.TokenType.EOF
+import org.lox.parser.{Expr, Parser}
 
-import scala.io.StdIn.readLine
 import scala.io.Source.fromFile
+import scala.io.StdIn.readLine
+import scala.util.{Failure, Success, Try}
 
 object Lox {
   var hadError = false
+  val interpreter = new Interpreter
 
   def main(args: Array[String]): Unit = {
     args match {
@@ -36,7 +38,8 @@ object Lox {
     val tokens: Seq[Token] = Scanner(source).apply
     val expression: Expr = new Parser(tokens).parse
     if (hadError && shouldError) System.exit(65)
-    new AstPrinter().print(expression)
+    val result = interpreter.interpret(expression)
+    handle(result)
   }
 
   def error(line: Int, message: String): Unit = {
@@ -46,6 +49,13 @@ object Lox {
   def error(token: Token, message: String): Unit = token.tokenType match {
     case EOF => report(token.line, " at end", message)
     case _ => report(token.line, s" at '${token.lexeme}'", message)
+  }
+
+  def handle(result: Try[String]): String = result match {
+    case Success(value) => value
+    case Failure(error) =>
+      System.err.println(error.getMessage)
+      ""
   }
 
   private def report(line: Int, where: String, message: String): Unit = {
