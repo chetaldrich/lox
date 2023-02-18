@@ -60,7 +60,7 @@ object Scanner extends RegexParsers {
     // converts it to a parser that checks for any of the tokens in constantLexemes
     .reduce(_ | _)
 
-  private val stringLiteral: Parser[Token] = "\".*\"".r ^^ {
+  private val stringLiteral: Parser[Token] = "\".*?\"".r ^^ {
     s => Token(TokenType.String, s, s.substring(1, s.length - 1), 0)
   }
 

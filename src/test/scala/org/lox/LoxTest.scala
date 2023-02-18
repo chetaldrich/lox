@@ -13,4 +13,9 @@ class LoxTest extends AnyFlatSpec with should.Matchers {
     val output = Lox.run("1 > 2")
     output should be("false")
   }
+
+  it should "add strings together when given them" in {
+    val output = Lox.run("\"hello\" + \" world\"")
+    output should be("hello world")
+  }
 }

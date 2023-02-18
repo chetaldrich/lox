@@ -15,6 +15,14 @@ class InterpreterTest extends AnyFlatSpec with should.Matchers {
     interpreter.interpret(expr).get should be("3")
   }
 
+  it should "evaluate an addition binary expression with strings correctly" in {
+    val left = Literal("hello")
+    val right = Literal(" world")
+    val expr = Binary(left, Token(Plus, "+", null, 0), right)
+    val interpreter = new Interpreter
+    interpreter.interpret(expr).get should be("hello world")
+  }
+
   it should "evaluate a greater binary expression correctly" in {
     val left = Literal(1d)
     val right = Literal(2d)

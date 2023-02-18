@@ -8,6 +8,9 @@ import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor2}
 
 class ScannerTest extends AnyFlatSpec with should.Matchers with TableDrivenPropertyChecks {
   val eof: Token = Token(EOF, null, null, 0)
+  def stringLiteral(str: String): Token = {
+    Token(TokenType.String, s"\"$str\"", str, 0)
+  }
 
   val scannerTests: TableFor2[String, Seq[Token]] = Table(
     ("input", "expected"),
@@ -33,7 +36,8 @@ class ScannerTest extends AnyFlatSpec with should.Matchers with TableDrivenPrope
     ("// this is a comment.\n", Seq(eof)),
     ("// this is a comment.\n*", Seq(Token(TokenType.Star, "*", null, 0), eof)),
     ("\t \r \n", Seq(eof)),
-    ("\"this is a string literal 123\"", Seq(Token(TokenType.String, "\"this is a string literal 123\"", "this is a string literal 123", 0), eof)),
+    ("\"this is a string literal 123\"", Seq(stringLiteral("this is a string literal 123"), eof)),
+    ("\"hello\" + \"world\"", Seq(stringLiteral("hello"), Token(TokenType.Plus, "+", null, 0), stringLiteral("world"), eof)),
     ("123.45", Seq(Token(TokenType.Number, "123.45", 123.45, 0), eof)),
     ("12", Seq(Token(TokenType.Number, "12", 12.toDouble, 0), eof)),
     ("1.2", Seq(Token(TokenType.Number, "1.2", 1.2, 0), eof)),
