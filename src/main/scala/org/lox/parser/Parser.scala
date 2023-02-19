@@ -5,6 +5,7 @@ import org.lox.parser.Parser.ParseError
 import org.lox.{Lox, Token, TokenType}
 
 import scala.annotation.unused
+import scala.util.Try
 
 object Parser {
   case class ParseError() extends RuntimeException
@@ -12,10 +13,7 @@ object Parser {
 
 class Parser(tokens: Seq[Token], private var current: Int = 0) {
 
-  def parse: Expr = try expression
-  catch {
-    case e: ParseError => null
-  }
+  def parse: Try[Expr] = Try(expression)
 
   private def expression: Expr = ternary
 

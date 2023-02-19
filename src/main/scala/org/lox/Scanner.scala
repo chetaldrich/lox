@@ -1,5 +1,6 @@
 package org.lox
 
+import scala.util.{Success, Try}
 import scala.util.matching.Regex
 import scala.util.parsing.combinator._
 
@@ -84,18 +85,16 @@ object Scanner extends RegexParsers {
 
 case class Scanner(source: String) {
   // generates a sequence of tokens from the source code using the parser combinator defined above.
-  def apply: Seq[Token] = {
-    Scanner.parse(Scanner.tokenizer, source) match {
-      case Scanner.Success(matched: Seq[Token], _) =>
-        if (matched.exists(_.tokenType == TokenType.Invalid)) {
-          val invalidToken = matched.find(_.tokenType == TokenType.Invalid).get.lexeme
-          throw new Exception(s"Invalid token found: $invalidToken")
-        } else {
-          matched :+ Token(TokenType.EOF, null, null, 0)
-        }
-      case Scanner.Failure(msg, _) => throw new Exception(msg)
-      case Scanner.Error(msg, _) => throw new Exception(msg)
-      case _ => throw new Exception("Unknown error")
-    }
+  def apply: Try[Seq[Token]] = Scanner.parse(Scanner.tokenizer, source) match {
+    case Scanner.Success(matched: Seq[Token], _) =>
+      if (matched.exists(_.tokenType == TokenType.Invalid)) {
+        val invalidToken = matched.find(_.tokenType == TokenType.Invalid).get.lexeme
+        throw new Exception(s"Invalid token found: $invalidToken")
+      } else {
+        Success(matched :+ Token(TokenType.EOF, null, null, 0))
+      }
+    case Scanner.Failure(msg, _) => throw new Exception(msg)
+    case Scanner.Error(msg, _) => throw new Exception(msg)
+    case _ => throw new Exception("Unknown error")
   }
 }

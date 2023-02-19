@@ -65,7 +65,7 @@ class ScannerTest extends AnyFlatSpec with should.Matchers with TableDrivenPrope
   forAll(scannerTests) { (input, expected) =>
     it should s"scan \"$input\" successfully" in {
       val scanner = new Scanner(input)
-      scanner.apply should be(expected)
+      scanner.apply.get should be(expected)
     }
   }
 

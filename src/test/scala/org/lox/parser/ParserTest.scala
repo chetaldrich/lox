@@ -15,7 +15,7 @@ class ParserTest extends AnyFlatSpec with should.Matchers{
     )
 
     val expression = new Parser(tokens).parse
-    expression should be(Binary(Literal(1), Token(TokenType.EqualEqual, "==", null, 0), Literal(1)))
+    expression.get should be(Binary(Literal(1), Token(TokenType.EqualEqual, "==", null, 0), Literal(1)))
   }
 
   it should "accept a ternary expression" in {
@@ -29,7 +29,7 @@ class ParserTest extends AnyFlatSpec with should.Matchers{
     )
 
     val expression = new Parser(tokens).parse
-    expression should be(Ternary(Literal(true), Literal(1d), Literal(2d)))
+    expression.get should be(Ternary(Literal(true), Literal(1d), Literal(2d)))
   }
 
   it should "accept a ternary expression with an equality expression as input" in {
@@ -46,6 +46,6 @@ class ParserTest extends AnyFlatSpec with should.Matchers{
     )
 
     val expression = new Parser(tokens).parse
-    expression should be(Ternary(Binary(Literal(true), equals, Literal(false)), Literal(1d), Literal(2d)))
+    expression.get should be(Ternary(Binary(Literal(true), equals, Literal(false)), Literal(1d), Literal(2d)))
   }
 }
