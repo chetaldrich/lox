@@ -1,7 +1,7 @@
 package org.lox
 
 import org.lox.TokenType.EOF
-import org.lox.parser.{Expr, Parser}
+import org.lox.parser.{Expr, Parser, Stmt}
 
 import scala.io.Source.fromFile
 import scala.io.StdIn.readLine
@@ -18,7 +18,7 @@ object Lox {
 
   private def runFile(path: String): Unit = {
     val source = fromFile(path)
-    run(try source.mkString finally source.close()).foreach(println)
+    run(try source.mkString finally source.close())
   }
 
   private def runPrompt(): Unit = {
@@ -27,14 +27,14 @@ object Lox {
       print("slox> ")
       val line = readLine()
       if (line == null) continue = false
-      else run(line, shouldError = false).foreach(println)
+      else run(line, shouldError = false)
     }
   }
 
-  def run(source: String, shouldError: Boolean = true): Option[String] = for {
+  def run(source: String, shouldError: Boolean = true): Option[Unit] = for {
     tokens <- handle(Scanner(source).apply, 65, shouldError)
-    expression <- handle(new Parser(tokens).parse, 65, shouldError)
-    result <- handle(interpreter.interpret(expression), 65, shouldError)
+    statements <- handle(new Parser(tokens).parse, 65, shouldError)
+    result <- handle(interpreter.interpret(statements), 65, shouldError)
   } yield result
 
   def error(line: Int, message: String): Unit = report(line, "", message)

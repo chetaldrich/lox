@@ -5,12 +5,13 @@ import org.lox.parser._
 
 import scala.util.Try
 
-class Interpreter extends Visitor[Any] {
+class Interpreter extends Visitor[Any] with StmtVisitor[Unit] {
 
-  def interpret(expression: Expr): Try[String] = Try {
-    val value = evaluate(expression)
-    stringify(value)
+  def interpret(statements: Seq[Stmt]): Try[Unit] = Try {
+    statements.foreach(execute)
   }
+
+  def execute(statement: Stmt): Unit = statement.accept(this)
 
   private def stringify(value: Any): String = value match {
     case null => "nil"
@@ -19,6 +20,9 @@ class Interpreter extends Visitor[Any] {
       pattern.findAllIn(d.toString).group(1)
     case v => v.toString
   }
+
+  override def visitPrintStmt(expr: Expr): Unit = println(stringify(evaluate(expr)))
+  override def visitExpressionStmt(expr: Expr): Unit = evaluate(expr)
 
   override def visitBinaryExpr(expr: Binary): Any = {
     val left = evaluate(expr.left)

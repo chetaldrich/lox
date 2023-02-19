@@ -5,6 +5,7 @@ import org.lox.parser.Parser.ParseError
 import org.lox.{Lox, Token, TokenType}
 
 import scala.annotation.unused
+import scala.collection.mutable.ListBuffer
 import scala.util.Try
 
 object Parser {
@@ -13,7 +14,30 @@ object Parser {
 
 class Parser(tokens: Seq[Token], private var current: Int = 0) {
 
-  def parse: Try[Expr] = Try(expression)
+  def parse: Try[List[Stmt]] = Try {
+    val statements: ListBuffer[Stmt] = ListBuffer()
+    while (!isAtEnd) {
+      statements += statement
+    }
+    statements.toList
+  }
+
+  private def statement: Stmt = {
+    if (`match`(Print)) printStatement
+    else expressionStatement
+  }
+
+  private def printStatement: Stmt = {
+    val expr = expression
+    consume(Semicolon, "Expect ';' after value")
+    PrintStmt(expr)
+  }
+
+  private def expressionStatement: Stmt = {
+    val expr = expression
+    consume(Semicolon, "Expect ';' after expression")
+    ExpressionStmt(expr)
+  }
 
   private def expression: Expr = ternary
 
