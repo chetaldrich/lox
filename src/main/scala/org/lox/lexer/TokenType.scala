@@ -1,4 +1,4 @@
-package org.lox
+package org.lox.lexer
 
 import scala.util.matching.Regex
 

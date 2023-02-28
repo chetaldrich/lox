@@ -1,12 +1,12 @@
 package org.lox.parser
 
-import org.lox.{Token, TokenType}
+import org.lox.lexer.{Token, TokenType}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
 class ParserTest extends AnyFlatSpec with should.Matchers{
 
-  val eos = List(Token(TokenType.Semicolon, ";", null, 0), Token(TokenType.EOF, null, null, 0))
+  val eos: Seq[Token] = List(Token(TokenType.Semicolon, ";", null, 0), Token(TokenType.EOF, null, null, 0))
   def exprStmt(expr: Expr): List[ExpressionStmt] = List(ExpressionStmt(expr))
 
   it should "accept an equality expression statement" in {

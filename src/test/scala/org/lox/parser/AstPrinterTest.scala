@@ -1,6 +1,6 @@
 package org.lox.parser
 
-import org.lox.{Token, TokenType}
+import org.lox.lexer.{Token, TokenType}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
@@ -16,5 +16,11 @@ class AstPrinterTest extends AnyFlatSpec with should.Matchers {
 
     val printer = new AstPrinter
     printer.print(expression) should be("(* (- 123) 45.67)")
+  }
+
+  it should "pretty print a variable expression successfully" in {
+    val variableExpression = Variable(Token(TokenType.Identifier, "someVariableName", null, 0))
+    val printer = new AstPrinter
+    printer.print(variableExpression) should be("(var someVariableName)")
   }
 }

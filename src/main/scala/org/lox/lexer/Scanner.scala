@@ -1,8 +1,8 @@
-package org.lox
+package org.lox.lexer
 
-import scala.util.{Success, Try}
 import scala.util.matching.Regex
 import scala.util.parsing.combinator._
+import scala.util.{Success, Try}
 
 object Scanner extends RegexParsers {
   override val whiteSpace: Regex = """(\s+|//.*)+""".r

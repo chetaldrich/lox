@@ -1,8 +1,9 @@
 package org.lox.parser
 
-import org.lox.TokenType._
+import org.lox.lexer.{Token, TokenType}
+import org.lox.lexer.TokenType._
 import org.lox.parser.Parser.ParseError
-import org.lox.{Lox, Token, TokenType}
+import org.lox.Lox
 
 import scala.annotation.unused
 import scala.collection.mutable.ListBuffer
@@ -17,9 +18,27 @@ class Parser(tokens: Seq[Token], private var current: Int = 0) {
   def parse: Try[List[Stmt]] = Try {
     val statements: ListBuffer[Stmt] = ListBuffer()
     while (!isAtEnd) {
-      statements += statement
+      statements += declaration
     }
     statements.toList
+  }
+
+  private def declaration: Stmt = {
+    try {
+      if (`match`(Var)) varDeclaration
+      else statement
+    } catch  {
+      case _: ParseError =>
+        synchronize()
+        null
+    }
+  }
+
+  private def varDeclaration: Stmt = {
+    val name: Token = consume(Identifier, "Expected variable name.")
+    val initializer: Option[Expr] = if (`match`(Equal)) Some(expression) else None
+    consume(Semicolon, "Expected ';' after variable declaration.")
+    VarStmt(name, initializer)
   }
 
   private def statement: Stmt = {
@@ -63,19 +82,16 @@ class Parser(tokens: Seq[Token], private var current: Int = 0) {
   private def unary: Expr = if (`match`(Bang, Minus)) Unary(previous, unary) else primary
 
   private def primary: Expr = {
-    if (`match`(False)) return Literal(false)
-    if (`match`(True)) return Literal(true)
-    if (`match`(Nil)) return Literal(null)
-
-    if (`match`(Number, String)) return Literal(previous.literal)
-
-    if (`match`(LeftParen)) {
+    if (`match`(False)) Literal(false)
+    else if (`match`(True)) Literal(true)
+    else if (`match`(Nil)) Literal(null)
+    else if (`match`(Number, String)) Literal(previous.literal)
+    else if (`match`(Identifier)) Variable(previous)
+    else if (`match`(LeftParen)) {
       val expr = expression
       consume(RightParen, "expected ')' after expression")
-      return Grouping(expr)
-    }
-
-    throw error(peek, "Expected expression.")
+      Grouping(expr)
+    } else throw error(peek, "Expected expression.")
   }
 
   def consume(`type`: TokenType, message: String): Token = {

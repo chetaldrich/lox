@@ -1,11 +1,14 @@
-package org.lox
+package org.lox.runtime
 
-import org.lox.TokenType._
+import org.lox.lexer.TokenType._
 import org.lox.parser._
+import org.lox.RuntimeError
+import org.lox.lexer.Token
 
 import scala.util.Try
 
 class Interpreter extends Visitor[Any] with StmtVisitor[Unit] {
+  private val environment: Environment = new Environment
 
   def interpret(statements: Seq[Stmt]): Try[Unit] = Try {
     statements.foreach(execute)
@@ -21,8 +24,16 @@ class Interpreter extends Visitor[Any] with StmtVisitor[Unit] {
     case v => v.toString
   }
 
-  override def visitPrintStmt(expr: Expr): Unit = println(stringify(evaluate(expr)))
-  override def visitExpressionStmt(expr: Expr): Unit = evaluate(expr)
+  override def visitPrintStmt(printStmt: PrintStmt): Unit = println(stringify(evaluate(printStmt.expr)))
+
+  override def visitExpressionStmt(expressionStmt: ExpressionStmt): Unit = evaluate(expressionStmt.expr)
+
+  override def visitVarExpr(expr: Variable): Any = environment.get(expr.name).get
+
+  override def visitVarStmt(varStmt: VarStmt): Unit = {
+    val value: Option[Any] = varStmt.initializer.map(evaluate)
+    environment.define(varStmt.name, value)
+  }
 
   override def visitBinaryExpr(expr: Binary): Any = {
     val left = evaluate(expr.left)

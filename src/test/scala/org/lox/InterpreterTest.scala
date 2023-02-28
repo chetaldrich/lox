@@ -1,7 +1,9 @@
 package org.lox
 
-import org.lox.TokenType.{Greater, GreaterEqual, LessEqual, Plus}
+import org.lox.lexer.Token
+import org.lox.lexer.TokenType.{Greater, GreaterEqual, LessEqual, Plus}
 import org.lox.parser.{Binary, Expr, ExpressionStmt, Literal, PrintStmt, Stmt}
+import org.lox.runtime.Interpreter
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 

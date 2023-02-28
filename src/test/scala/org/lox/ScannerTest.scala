@@ -2,7 +2,8 @@ package org.lox
 
 import org.scalatest._
 import flatspec._
-import org.lox.TokenType.EOF
+import org.lox.lexer.TokenType.EOF
+import org.lox.lexer.{Scanner, Token, TokenType}
 import org.scalatest.matchers.should
 import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor2}
 

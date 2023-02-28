@@ -22,4 +22,5 @@ class AstPrinter extends Visitor[String] {
     s"($name ${exprs.map(_.accept(this)).mkString(" ")})"
   }
 
+  override def visitVarExpr(variable: Variable): String = s"(var ${variable.name.lexeme})"
 }

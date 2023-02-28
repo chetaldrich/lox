@@ -1,6 +1,6 @@
 package org.lox.parser
 
-import org.lox.Token
+import org.lox.lexer.Token
 
 sealed trait Expr {
   def accept[R](visitor: Visitor[R]): R
@@ -17,6 +17,8 @@ trait Visitor[R] {
   def visitLiteralExpr(expr: Literal): R
 
   def visitUnaryExpr(expr: Unary): R
+
+  def visitVarExpr(expr: Variable): R
 }
 
 case class Ternary(condition: Expr, `then`: Expr, otherwise: Expr) extends Expr {
@@ -37,4 +39,8 @@ case class Literal(value: Any) extends Expr {
 
 case class Unary(operator: Token, right: Expr) extends Expr {
   def accept[R](visitor: Visitor[R]): R = visitor.visitUnaryExpr(this)
+}
+
+case class Variable(name: Token) extends Expr {
+  override def accept[R](visitor: Visitor[R]): R = visitor.visitVarExpr(this)
 }

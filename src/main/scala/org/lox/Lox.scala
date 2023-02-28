@@ -1,7 +1,9 @@
 package org.lox
 
-import org.lox.TokenType.EOF
+import org.lox.lexer.TokenType.EOF
+import org.lox.lexer.{Scanner, Token}
 import org.lox.parser.{Expr, Parser, Stmt}
+import org.lox.runtime.Interpreter
 
 import scala.io.Source.fromFile
 import scala.io.StdIn.readLine
