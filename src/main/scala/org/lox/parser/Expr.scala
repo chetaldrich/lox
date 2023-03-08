@@ -7,6 +7,7 @@ sealed trait Expr {
 }
 
 trait Visitor[R] {
+  def visitAssignmentExpression(assign: Assign): R
 
   def visitTernaryExpr(expr: Ternary): R
 
@@ -43,4 +44,8 @@ case class Unary(operator: Token, right: Expr) extends Expr {
 
 case class Variable(name: Token) extends Expr {
   override def accept[R](visitor: Visitor[R]): R = visitor.visitVarExpr(this)
+}
+
+case class Assign(name: Token, value: Expr) extends Expr {
+  override def accept[R](visitor: Visitor[R]): R = visitor.visitAssignmentExpression(this)
 }

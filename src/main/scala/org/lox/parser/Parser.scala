@@ -27,7 +27,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0) {
     try {
       if (`match`(Var)) varDeclaration
       else statement
-    } catch  {
+    } catch {
       case _: ParseError =>
         synchronize()
         null
@@ -43,7 +43,17 @@ class Parser(tokens: Seq[Token], private var current: Int = 0) {
 
   private def statement: Stmt = {
     if (`match`(Print)) printStatement
+    else if (`match`(LeftBrace)) Block(block)
     else expressionStatement
+  }
+
+  private def block: List[Stmt] = {
+    val statements: ListBuffer[Stmt] = ListBuffer()
+    while (!check(RightBrace) && !isAtEnd) {
+      statements += declaration
+    }
+    consume(RightBrace, "Expected '}' after block.")
+    statements.toList
   }
 
   private def printStatement: Stmt = {
@@ -58,16 +68,29 @@ class Parser(tokens: Seq[Token], private var current: Int = 0) {
     ExpressionStmt(expr)
   }
 
-  private def expression: Expr = ternary
+  private def expression: Expr = assignment
+
+  private def assignment: Expr = {
+    val expr = ternary
+
+    if (`match`(Equal)) {
+      val equals = previous
+      val value = assignment
+
+      expr match {
+        case variable: Variable => Assign(variable.name, value)
+        case _ => throw error(equals, "Invalid assignment target.")
+      }
+    } else expr
+  }
 
   private def ternary: Expr = {
     val expr = equality
     if (`match`(QuestionMark)) {
       val `then` = equality
-      if (`match`(Colon)) {
-        val otherwise = equality
-        Ternary(expr, `then`, otherwise)
-      } else expr
+      consume(Colon, "Expected colon after ? in ternary expression.")
+      val otherwise = equality
+      Ternary(expr, `then`, otherwise)
     } else expr
   }
 

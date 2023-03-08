@@ -8,7 +8,7 @@ import org.lox.lexer.Token
 import scala.util.Try
 
 class Interpreter extends Visitor[Any] with StmtVisitor[Unit] {
-  private val environment: Environment = new Environment
+  private var environment: Environment = new Environment
 
   def interpret(statements: Seq[Stmt]): Try[Unit] = Try {
     statements.foreach(execute)
@@ -33,6 +33,25 @@ class Interpreter extends Visitor[Any] with StmtVisitor[Unit] {
   override def visitVarStmt(varStmt: VarStmt): Unit = {
     val value: Option[Any] = varStmt.initializer.map(evaluate)
     environment.define(varStmt.name, value)
+  }
+
+  override def visitAssignmentExpression(assign: Assign): Any = {
+    val value = evaluate(assign.value)
+    environment.assign(assign.name, value)
+  }
+
+  override def visitBlockStmt(block: Block): Unit = {
+    executeBlock(block.stmts, new Environment(Some(this.environment)))
+  }
+
+  def executeBlock(statements: List[Stmt], environment: Environment): Unit = {
+    val previous = environment
+    try {
+      this.environment = environment
+      statements.foreach(execute)
+    } finally {
+      this.environment = previous
+    }
   }
 
   override def visitBinaryExpr(expr: Binary): Any = {
