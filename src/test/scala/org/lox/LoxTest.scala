@@ -10,7 +10,14 @@ class LoxTest extends AnyFlatSpec with should.Matchers {
       Lox.run("print 1 + 1;")
     }
     output.toString.trim should be("2")
+  }
 
+  it should "run the repl on a full print statement without logging expression errors" in {
+    val errOutput = new java.io.ByteArrayOutputStream()
+    Console.withErr(errOutput) {
+      Lox.runRepl("print 1 + 1;")
+    }
+    errOutput.toString should be("")
   }
 
   it should "print false when given 1 > 2" in {

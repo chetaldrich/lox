@@ -14,6 +14,8 @@ class Interpreter extends Visitor[Any] with StmtVisitor[Unit] {
     statements.foreach(execute)
   }
 
+  def interpretExpression(expr: Expr): Try[Any] = Try(expr.accept(this))
+
   def execute(statement: Stmt): Unit = statement.accept(this)
 
   private def stringify(value: Any): String = value match {

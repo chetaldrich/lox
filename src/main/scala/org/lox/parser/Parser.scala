@@ -13,7 +13,7 @@ object Parser {
   case class ParseError() extends RuntimeException
 }
 
-class Parser(tokens: Seq[Token], private var current: Int = 0) {
+class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Boolean = true) {
 
   def parse: Try[List[Stmt]] = Try {
     val statements: ListBuffer[Stmt] = ListBuffer()
@@ -22,6 +22,8 @@ class Parser(tokens: Seq[Token], private var current: Int = 0) {
     }
     statements.toList
   }
+
+  def parseExpression: Try[Expr] = Try(expression)
 
   private def declaration: Stmt = {
     try {
@@ -158,7 +160,9 @@ class Parser(tokens: Seq[Token], private var current: Int = 0) {
   private def previous = tokens(current - 1)
 
   private def error(token: Token, message: String): ParseError = {
-    Lox.error(token, message)
+    if (shouldLog) {
+      Lox.error(token, message)
+    }
     ParseError()
   }
 

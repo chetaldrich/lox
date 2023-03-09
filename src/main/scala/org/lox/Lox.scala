@@ -20,7 +20,8 @@ object Lox {
 
   private def runFile(path: String): Unit = {
     val source = fromFile(path)
-    run(try source.mkString finally source.close())
+    val code = try source.mkString finally source.close()
+    run(code)
   }
 
   private def runPrompt(): Unit = {
@@ -29,13 +30,30 @@ object Lox {
       print("slox> ")
       val line = readLine()
       if (line == null) continue = false
-      else run(line, shouldError = false)
+      else runRepl(line)
     }
   }
 
+  def runRepl(code: String): Unit = {
+    val expressionParse: Try[Expr] = parse(code, tokens => new Parser(tokens, shouldLog = false).parseExpression)
+    if (expressionParse.isSuccess) {
+      expressionParse.flatMap(expr => interpreter.interpretExpression(expr)).foreach(println)
+      return
+    }
+    val fullParse: Try[List[Stmt]] = parse(code, tokens => new Parser(tokens).parse)
+    fullParse match {
+      case Success(value: Seq[Stmt]) => interpreter.interpret(value)
+      case Failure(e) => System.err.println(e)
+    }
+  }
+
+  def parse[T](source: String, parseFn: Seq[Token] => Try[T]): Try[T] = for {
+    tokens: Seq[Token] <- Scanner(source).apply
+    parseOutput <- parseFn.apply(tokens)
+  } yield parseOutput
+
   def run(source: String, shouldError: Boolean = true): Option[Unit] = for {
-    tokens <- handle(Scanner(source).apply, 65, shouldError)
-    statements <- handle(new Parser(tokens).parse, 65, shouldError)
+    statements <- handle(parse(source, tokens => new Parser(tokens).parse), 65, shouldError)
     result <- handle(interpreter.interpret(statements), 65, shouldError)
   } yield result
 
