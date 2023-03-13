@@ -1,5 +1,9 @@
 package org.lox
 
+import org.jline.reader.impl.DefaultParser
+import org.jline.reader.{LineReader, LineReaderBuilder, UserInterruptException}
+import org.jline.terminal.Terminal.Signal
+import org.jline.terminal.{Size, TerminalBuilder}
 import org.lox.lexer.TokenType.EOF
 import org.lox.lexer.{Scanner, Token}
 import org.lox.parser.{Expr, Parser, Stmt}
@@ -24,13 +28,27 @@ object Lox {
     run(code)
   }
 
+  private def prompt: LineReader = {
+    val terminal = TerminalBuilder.builder.build
+    val parser = new DefaultParser
+    LineReaderBuilder
+      .builder
+      .terminal(terminal)
+      .parser(parser)
+      .build
+  }
+
   private def runPrompt(): Unit = {
     var continue = true
+    val reader = prompt
     while (continue) {
-      print("slox> ")
-      val line = readLine()
-      if (line == null) continue = false
-      else runRepl(line)
+      try {
+        val line = reader.readLine("slox> ")
+        if (line == null) continue = false
+        else runRepl(line)
+      } catch {
+        case _: UserInterruptException => System.exit(0)
+      }
     }
   }
 
