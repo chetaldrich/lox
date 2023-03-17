@@ -126,4 +126,11 @@ class Interpreter extends Visitor[Any] with StmtVisitor[Unit] {
     if (isTruthy(evaluate(ifStmt.condition))) execute(ifStmt.thenBranch)
     else if (ifStmt.elseBranch != null) execute(ifStmt.elseBranch)
   }
+
+  override def visitLogicalExpr(expr: Logical): Any = {
+    val left = evaluate(expr.left)
+    if (expr.operator.tokenType == Or && isTruthy(left)) left
+    else if (!isTruthy(left)) left
+    else evaluate(expr.right)
+  }
 }

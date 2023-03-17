@@ -25,4 +25,6 @@ class AstPrinter extends Visitor[String] {
   override def visitVarExpr(variable: Variable): String = s"(var ${variable.name.lexeme})"
 
   override def visitAssignmentExpression(assign: Assign): String = parenthesize(assign.name.lexeme, assign.value)
+
+  override def visitLogicalExpr(expr: Logical): String = parenthesize(expr.operator.lexeme, expr.left, expr.right)
 }

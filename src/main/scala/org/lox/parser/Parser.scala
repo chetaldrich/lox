@@ -83,7 +83,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
   private def expression: Expr = assignment
 
   private def assignment: Expr = {
-    val expr = ternary
+    val expr = or
 
     if (`match`(Equal)) {
       val equals = previous
@@ -96,6 +96,12 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     } else expr
   }
 
+  private def or: Expr = matchWhile(and, Or)(Logical)
+
+
+  private def and: Expr = matchWhile(ternary, And)(Logical)
+
+
   private def ternary: Expr = {
     val expr = equality
     if (`match`(QuestionMark)) {
@@ -106,13 +112,13 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     } else expr
   }
 
-  private def equality: Expr = matchWhile(comparison, BangEqual, EqualEqual)
+  private def equality: Expr = matchWhile(comparison, BangEqual, EqualEqual)()
 
-  private def comparison: Expr = matchWhile(term, Greater, GreaterEqual, Less, LessEqual)
+  private def comparison: Expr = matchWhile(term, Greater, GreaterEqual, Less, LessEqual)()
 
-  private def term: Expr = matchWhile(factor, Plus, Minus)
+  private def term: Expr = matchWhile(factor, Plus, Minus)()
 
-  private def factor: Expr = matchWhile(unary, Slash, Star)
+  private def factor: Expr = matchWhile(unary, Slash, Star)()
 
   private def unary: Expr = if (`match`(Bang, Minus)) Unary(previous, unary) else primary
 
@@ -135,10 +141,10 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     } else throw error(peek, message)
   }
 
-  private def matchWhile(rule: => Expr, tokens: TokenType*): Expr = {
+  private def matchWhile(rule: => Expr, tokens: TokenType*)(toExpr: (Expr, Token, Expr) => Expr = Binary): Expr = {
     var expr = rule
     while (`match`(tokens: _*)) {
-      expr = Binary(expr, previous, rule)
+      expr = toExpr(expr, previous, rule)
     }
     expr
   }
