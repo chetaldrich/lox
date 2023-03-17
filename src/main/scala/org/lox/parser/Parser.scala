@@ -45,6 +45,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
 
   private def statement: Stmt = {
     if (`match`(Print)) printStatement
+    else if (`match`(If)) ifStatement
     else if (`match`(LeftBrace)) Block(block)
     else expressionStatement
   }
@@ -56,6 +57,15 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     }
     consume(RightBrace, "Expected '}' after block.")
     statements.toList
+  }
+
+  private def ifStatement: Stmt = {
+    consume(LeftParen, "Expect '(' after 'if'")
+    val condition = expression
+    consume(RightParen, "Expect ')' after 'if'")
+    val thenBranch = statement
+    val elseBranch = if (`match`(Else)) statement else null
+    IfStmt(condition, thenBranch = thenBranch, elseBranch = elseBranch)
   }
 
   private def printStatement: Stmt = {

@@ -14,6 +14,12 @@ trait StmtVisitor[R] {
   def visitExpressionStmt(exprStmt: ExpressionStmt): R
 
   def visitVarStmt(varStmt: VarStmt): R
+
+  def visitIfStmt(ifStmt: IfStmt): R
+}
+
+case class IfStmt(condition: Expr, thenBranch: Stmt, elseBranch: Stmt) extends Stmt {
+  override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitIfStmt(this)
 }
 
 case class PrintStmt(expr: Expr) extends Stmt {

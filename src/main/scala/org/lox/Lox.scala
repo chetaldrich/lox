@@ -2,15 +2,13 @@ package org.lox
 
 import org.jline.reader.impl.DefaultParser
 import org.jline.reader.{LineReader, LineReaderBuilder, UserInterruptException}
-import org.jline.terminal.Terminal.Signal
-import org.jline.terminal.{Size, TerminalBuilder}
+import org.jline.terminal.TerminalBuilder
 import org.lox.lexer.TokenType.EOF
 import org.lox.lexer.{Scanner, Token}
 import org.lox.parser.{Expr, Parser, Stmt}
 import org.lox.runtime.Interpreter
 
 import scala.io.Source.fromFile
-import scala.io.StdIn.readLine
 import scala.util.{Failure, Success, Try}
 
 object Lox {
@@ -47,7 +45,7 @@ object Lox {
         if (line == null) continue = false
         else runRepl(line)
       } catch {
-        case _: UserInterruptException => System.exit(0)
+        case _: UserInterruptException => continue = false
       }
     }
   }

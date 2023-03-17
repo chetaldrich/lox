@@ -122,4 +122,8 @@ class Interpreter extends Visitor[Any] with StmtVisitor[Unit] {
     case _ => true
   }
 
+  override def visitIfStmt(ifStmt: IfStmt): Unit = {
+    if (isTruthy(evaluate(ifStmt.condition))) execute(ifStmt.thenBranch)
+    else if (ifStmt.elseBranch != null) execute(ifStmt.elseBranch)
+  }
 }
