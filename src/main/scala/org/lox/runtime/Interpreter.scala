@@ -133,4 +133,10 @@ class Interpreter extends Visitor[Any] with StmtVisitor[Unit] {
     else if (!isTruthy(left)) left
     else evaluate(expr.right)
   }
+
+  override def visitWhileStmt(stmt: WhileStmt): Unit = {
+    while (isTruthy(evaluate(stmt.condition))) {
+      execute(stmt.body)
+    }
+  }
 }

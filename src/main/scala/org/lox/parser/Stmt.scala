@@ -16,6 +16,12 @@ trait StmtVisitor[R] {
   def visitVarStmt(varStmt: VarStmt): R
 
   def visitIfStmt(ifStmt: IfStmt): R
+
+  def visitWhileStmt(stmt: WhileStmt): R
+}
+
+case class WhileStmt(condition: Expr, body: Stmt) extends Stmt {
+  override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitWhileStmt(this)
 }
 
 case class IfStmt(condition: Expr, thenBranch: Stmt, elseBranch: Stmt) extends Stmt {

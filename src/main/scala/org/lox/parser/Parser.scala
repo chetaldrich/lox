@@ -46,6 +46,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
   private def statement: Stmt = {
     if (`match`(Print)) printStatement
     else if (`match`(If)) ifStatement
+    else if (`match`(While)) whileStatement
     else if (`match`(LeftBrace)) Block(block)
     else expressionStatement
   }
@@ -57,6 +58,14 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     }
     consume(RightBrace, "Expected '}' after block.")
     statements.toList
+  }
+
+  private def whileStatement: Stmt = {
+    consume(LeftParen, "Expect '(' after 'while'.")
+    val condition = expression
+    consume(RightParen, "Expect ')' after condition.")
+    val body = statement
+    WhileStmt(condition, body)
   }
 
   private def ifStatement: Stmt = {
