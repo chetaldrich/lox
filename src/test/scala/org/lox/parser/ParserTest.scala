@@ -61,7 +61,7 @@ class ParserTest extends AnyFlatSpec with should.Matchers {
     )
 
     val statements = new Parser(tokens).parse
-    statements.get should be(List(Block(List(VarStmt(Token(TokenType.Identifier, "a"), Some(Literal("global a")))))))
+    statements.get should be(List(BlockStmt(List(VarStmt(Token(TokenType.Identifier, "a"), Some(Literal("global a")))))))
   }
 
   it should "accept a ternary expression with an equality expression as input" in {

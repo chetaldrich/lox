@@ -42,7 +42,7 @@ class Interpreter extends Visitor[Any] with StmtVisitor[Unit] {
     environment.assign(assign.name, value)
   }
 
-  override def visitBlockStmt(block: Block): Unit = {
+  override def visitBlockStmt(block: BlockStmt): Unit = {
     executeBlock(block.stmts, new Environment(Some(this.environment)))
   }
 

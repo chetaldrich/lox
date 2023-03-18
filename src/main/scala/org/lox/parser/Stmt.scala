@@ -7,7 +7,7 @@ sealed trait Stmt {
 }
 
 trait StmtVisitor[R] {
-  def visitBlockStmt(block: Block): R
+  def visitBlockStmt(block: BlockStmt): R
 
   def visitPrintStmt(printStmt: PrintStmt): R
 
@@ -40,7 +40,7 @@ case class ExpressionStmt(expr: Expr) extends Stmt {
   override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitExpressionStmt(this)
 }
 
-case class Block(stmts: List[Stmt]) extends Stmt {
+case class BlockStmt(stmts: List[Stmt]) extends Stmt {
   override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitBlockStmt(this)
 }
 

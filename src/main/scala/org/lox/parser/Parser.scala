@@ -46,8 +46,9 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
   private def statement: Stmt = {
     if (`match`(Print)) printStatement
     else if (`match`(If)) ifStatement
+    else if (`match`(For)) forStatement
     else if (`match`(While)) whileStatement
-    else if (`match`(LeftBrace)) Block(block)
+    else if (`match`(LeftBrace)) BlockStmt(block)
     else expressionStatement
   }
 
@@ -58,6 +59,39 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     }
     consume(RightBrace, "Expected '}' after block.")
     statements.toList
+  }
+
+  private def forStatement: Stmt = {
+    consume(LeftParen, "Expect '(' after 'for'.")
+
+    val initializer = if (`match`(Semicolon)) None
+    else if (`match`(Var)) Some(varDeclaration)
+    else Some(expressionStatement)
+
+    val condition: Option[Expr] = if (!check(Semicolon)) Some(expression) else None
+    consume(Semicolon, "Expect ';' after loop condition.")
+
+    val increment = if (!check(RightParen)) Some(expression) else None
+    consume(RightParen, "Expect ')' after after for clauses.")
+
+    val initialBody = Some(statement)
+
+    initialBody.map { (body: Stmt) =>
+      increment match {
+        case Some(i) => BlockStmt(List(body, ExpressionStmt(i)))
+        case None => body
+      }
+    }.map { body =>
+      condition match {
+        case Some(c) => WhileStmt(c, body)
+        case None => WhileStmt(Literal(true), body)
+      }
+    }.map { body =>
+      initializer match {
+        case Some(i) => BlockStmt(List(i, body))
+        case None => body
+      }
+    }.get
   }
 
   private def whileStatement: Stmt = {
