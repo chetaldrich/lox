@@ -107,6 +107,10 @@ object TokenType {
     override val lexeme: Regex = "and\\b".r
   }
 
+  case object Break extends RegexLexeme {
+    override val lexeme: Regex = "break\\b".r
+  }
+
   case object Class extends RegexLexeme {
     override val lexeme: Regex = "class\\b".r
   }

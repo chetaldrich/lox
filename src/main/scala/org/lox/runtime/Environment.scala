@@ -1,6 +1,5 @@
 package org.lox.runtime
 
-import org.lox.RuntimeError
 import org.lox.lexer.Token
 
 import scala.collection.mutable

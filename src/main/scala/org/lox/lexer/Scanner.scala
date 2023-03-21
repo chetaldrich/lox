@@ -35,6 +35,7 @@ object Scanner extends RegexParsers {
   val keywordLexemes: Seq[RegexLexeme] = List(
     TokenType.Or,
     TokenType.And,
+    TokenType.Break,
     TokenType.Class,
     TokenType.Else,
     TokenType.False,

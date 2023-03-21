@@ -1,0 +1,5 @@
+while (true) {
+  print "hello before break";
+  break;
+  print "hello after break doesn't get printed";
+}

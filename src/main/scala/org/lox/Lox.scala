@@ -58,7 +58,7 @@ object Lox {
     }
     val fullParse: Try[List[Stmt]] = parse(code, tokens => new Parser(tokens).parse)
     fullParse match {
-      case Success(value: Seq[Stmt]) => interpreter.interpret(value)
+      case Success(value: Seq[Stmt]) => interpreter.interpret(value).recover(System.err.println(_))
       case Failure(e) => System.err.println(e)
     }
   }

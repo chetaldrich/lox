@@ -1,4 +1,4 @@
-package org.lox
+package org.lox.runtime
 
 import org.lox.lexer.Token
 

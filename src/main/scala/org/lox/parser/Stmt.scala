@@ -18,6 +18,12 @@ trait StmtVisitor[R] {
   def visitIfStmt(ifStmt: IfStmt): R
 
   def visitWhileStmt(stmt: WhileStmt): R
+
+  def visitBreakStmt(stmt: BreakStmt): R
+}
+
+case class BreakStmt() extends Stmt {
+  override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitBreakStmt(this)
 }
 
 case class WhileStmt(condition: Expr, body: Stmt) extends Stmt {

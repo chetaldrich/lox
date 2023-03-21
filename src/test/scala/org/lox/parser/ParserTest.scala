@@ -12,6 +12,23 @@ class ParserTest extends AnyFlatSpec with should.Matchers {
 
   def exprStmt(expr: Expr): List[ExpressionStmt] = List(ExpressionStmt(expr))
 
+  it should "accept a break statement inside a while loop" in {
+    val tokens = List(
+      Token(TokenType.While, "while"),
+      Token(TokenType.LeftParen, "("),
+      Token(TokenType.True, "true"),
+      Token(TokenType.RightParen, ")"),
+      Token(TokenType.LeftBrace, "{"),
+      Token(TokenType.Break, "break"),
+      semicolon,
+      Token(TokenType.RightBrace, "}"),
+      eof
+    )
+
+    val statements = new Parser(tokens).parse
+    statements.get should be(List(WhileStmt(Literal(true), BlockStmt(List(BreakStmt())))))
+  }
+
   it should "accept an equality expression statement" in {
     val tokens = List(
       Token(TokenType.Number, "1", 1d),

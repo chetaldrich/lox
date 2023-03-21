@@ -2,7 +2,6 @@ package org.lox.runtime
 
 import org.lox.lexer.TokenType._
 import org.lox.parser._
-import org.lox.RuntimeError
 import org.lox.lexer.Token
 
 import scala.util.Try
@@ -135,8 +134,16 @@ class Interpreter extends Visitor[Any] with StmtVisitor[Unit] {
   }
 
   override def visitWhileStmt(stmt: WhileStmt): Unit = {
-    while (isTruthy(evaluate(stmt.condition))) {
-      execute(stmt.body)
+    try {
+      while (isTruthy(evaluate(stmt.condition))) {
+        execute(stmt.body)
+      }
+    } catch {
+      case _: BreakError =>
     }
+  }
+
+  override def visitBreakStmt(stmt: BreakStmt): Unit = {
+    throw new BreakError()
   }
 }

@@ -49,6 +49,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     else if (`match`(For)) forStatement
     else if (`match`(While)) whileStatement
     else if (`match`(LeftBrace)) BlockStmt(block)
+    else if (`match`(Break)) breakStatement
     else expressionStatement
   }
 
@@ -59,6 +60,11 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     }
     consume(RightBrace, "Expected '}' after block.")
     statements.toList
+  }
+
+  private def breakStatement: Stmt = {
+    consume(Semicolon, "Expect ';' after 'break'.")
+    BreakStmt()
   }
 
   private def forStatement: Stmt = {
