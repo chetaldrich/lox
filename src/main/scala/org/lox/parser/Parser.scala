@@ -29,12 +29,23 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
   private def declaration: Stmt = {
     try {
       if (`match`(Var)) varDeclaration
+      else if (`match`(Fun)) function("function")
       else statement
     } catch {
       case _: ParseError =>
         synchronize()
         null
     }
+  }
+
+  private def function(kind: String): Stmt = {
+    val name: Token = consume(Identifier, s"Expect $kind name.")
+    consume(LeftParen, s"Expect '(' after $kind name.")
+    val args = arguments(() => consume(Identifier, "Expect parameter name."))
+    consume(RightParen, "Expect ')' after arguments.")
+    consume(LeftBrace, s"Expect '{' before $kind body.")
+    val body = block
+    FunctionStmt(name, args, body)
   }
 
   private def varDeclaration: Stmt = {
@@ -186,18 +197,23 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     expr
   }
 
-  private def finishCall(callee: Expr) = {
-    val arguments: ListBuffer[Expr] = ListBuffer()
+  private def arguments[T](fn: () => T): List[T] = {
+    val arguments: ListBuffer[T] = ListBuffer()
     if (!check(RightParen)) {
       do {
         if (arguments.size >= 255) {
           error(peek, "Can't have more than 255 arguments.")
         }
-        arguments.addOne(expression)
+        arguments.addOne(fn.apply())
       } while (`match`(Comma))
     }
+    arguments.toList
+  }
+
+  private def finishCall(callee: Expr) = {
+    val args = arguments(() => expression)
     val paren = consume(RightParen, "Expect ')' after arguments")
-    Call(callee, paren, arguments.toList)
+    Call(callee, paren, args)
   }
 
   private def primary: Expr = {

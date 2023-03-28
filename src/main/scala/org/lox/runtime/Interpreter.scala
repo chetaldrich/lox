@@ -4,6 +4,7 @@ import org.lox.lexer.TokenType._
 import org.lox.parser._
 import org.lox.lexer.Token
 import org.lox.runtime.builtins.Clock
+import org.lox.runtime.functions.LoxFunction
 
 import scala.util.Try
 
@@ -15,7 +16,7 @@ object Interpreter {
   }
 }
 
-class Interpreter(private val globals: Environment) extends Visitor[Any] with StmtVisitor[Unit] {
+class Interpreter(val globals: Environment) extends Visitor[Any] with StmtVisitor[Unit] {
   private var environment: Environment = globals
 
   def interpret(statements: Seq[Stmt]): Try[Unit] = Try {
@@ -168,4 +169,6 @@ class Interpreter(private val globals: Environment) extends Visitor[Any] with St
       case _ => throw RuntimeError(expr.paren, "Can only call functions and classes.")
     }
   }
+
+  override def visitFunctionStmt(stmt: FunctionStmt): Unit = environment.define(stmt.name, Some(LoxFunction(stmt)))
 }
