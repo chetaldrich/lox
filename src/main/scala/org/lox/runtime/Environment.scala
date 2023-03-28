@@ -1,6 +1,7 @@
 package org.lox.runtime
 
 import org.lox.lexer.Token
+import org.lox.lexer.TokenType.Identifier
 
 import scala.collection.mutable
 import scala.util.Try
@@ -29,4 +30,7 @@ class Environment(private val enclosing: Option[Environment] = None) {
       case _ => throw RuntimeError(name, s"Undefined variable '${name.lexeme}'.")
     }
   }
+
+  // used for debugging
+  def getKey(key: String): Any = get(Token(Identifier, "key"))
 }

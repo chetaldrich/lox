@@ -7,8 +7,6 @@ import org.lox.runtime.Interpreter
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
-import java.time.{Clock, Instant, ZoneOffset}
-
 class InterpreterTest extends AnyFlatSpec with should.Matchers {
 
   def printStmt(expr: Expr): List[Stmt] = List(PrintStmt(expr))

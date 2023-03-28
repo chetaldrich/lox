@@ -1,0 +1,10 @@
+fun test(n) {
+    printThing(n - 2);
+    print n;
+}
+
+fun printThing(n) {
+    print n;
+}
+
+test(2);

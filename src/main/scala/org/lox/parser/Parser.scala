@@ -57,12 +57,20 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
 
   private def statement: Stmt = {
     if (`match`(Print)) printStatement
+    else if (`match`(Return)) returnStatement
     else if (`match`(If)) ifStatement
     else if (`match`(For)) forStatement
     else if (`match`(While)) whileStatement
     else if (`match`(LeftBrace)) BlockStmt(block)
     else if (`match`(Break)) breakStatement
     else expressionStatement
+  }
+
+  private def returnStatement: Stmt = {
+    val keyword = previous
+    val value = if (!check(Semicolon)) expression else null
+    consume(Semicolon, "Expect ';' after return value.")
+    ReturnStmt(keyword, value)
   }
 
   private def block: List[Stmt] = {

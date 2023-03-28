@@ -22,6 +22,8 @@ trait StmtVisitor[R] {
   def visitBreakStmt(stmt: BreakStmt): R
 
   def visitFunctionStmt(stmt: FunctionStmt): R
+
+  def visitReturnStmt(stmt: ReturnStmt): R
 }
 
 case class BreakStmt() extends Stmt {
@@ -55,4 +57,9 @@ case class BlockStmt(stmts: List[Stmt]) extends Stmt {
 case class FunctionStmt(name: Token, params: List[Token], body: List[Stmt]) extends Stmt {
   override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitFunctionStmt(this)
 }
+
+case class ReturnStmt(keyword: Token, value: Expr) extends Stmt {
+  override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitReturnStmt(this)
+}
+
 

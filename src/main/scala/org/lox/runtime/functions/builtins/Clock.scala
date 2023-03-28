@@ -1,4 +1,4 @@
-package org.lox.runtime.builtins
+package org.lox.runtime.functions.builtins
 
 import org.lox.runtime.{Interpreter, LoxCallable}
 

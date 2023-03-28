@@ -3,8 +3,8 @@ package org.lox.runtime
 import org.lox.lexer.TokenType._
 import org.lox.parser._
 import org.lox.lexer.Token
-import org.lox.runtime.builtins.Clock
 import org.lox.runtime.functions.LoxFunction
+import org.lox.runtime.functions.builtins.Clock
 
 import scala.util.Try
 
@@ -56,7 +56,7 @@ class Interpreter(val globals: Environment) extends Visitor[Any] with StmtVisito
   }
 
   def executeBlock(statements: List[Stmt], environment: Environment): Unit = {
-    val previous = environment
+    val previous = this.environment
     try {
       this.environment = environment
       statements.foreach(execute)
@@ -124,9 +124,9 @@ class Interpreter(val globals: Environment) extends Visitor[Any] with StmtVisito
     case _ => throw RuntimeError(operator, "Operands must be both Numbers or both Strings")
   }
 
-  def evaluate(expr: Expr): Any = expr.accept(this)
+  private def evaluate(expr: Expr): Any = expr.accept(this)
 
-  def isTruthy(value: Any): Boolean = value match {
+  private def isTruthy(value: Any): Boolean = value match {
     case null | false => false
     case _ => true
   }
@@ -171,4 +171,8 @@ class Interpreter(val globals: Environment) extends Visitor[Any] with StmtVisito
   }
 
   override def visitFunctionStmt(stmt: FunctionStmt): Unit = environment.define(stmt.name, Some(LoxFunction(stmt)))
-}
+
+  override def visitReturnStmt(stmt: ReturnStmt): Unit = {
+    throw FunctionReturn(Option(stmt.value).map(evaluate).orNull)
+  }
+ }
