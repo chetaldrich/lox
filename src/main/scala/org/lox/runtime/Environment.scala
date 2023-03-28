@@ -13,18 +13,20 @@ class Environment(private val enclosing: Option[Environment] = None) {
     (containsValue, enclosing) match {
       case (true, _) => values.put(name.lexeme, value)
       case (false, Some(env)) => env.assign(name, value)
-      case _ => throw new RuntimeError(name, s"Undefined variable '${name.lexeme}' referenced before declaration")
+      case _ => throw RuntimeError(name, s"Undefined variable '${name.lexeme}' referenced before declaration")
     }
   }
 
   def define(name: Token, value: Option[Any]): Unit = values.put(name.lexeme, value.orNull)
+
+  def defineGlobal(name: String, value: Option[Any]): Unit = values.put(name, value.orNull)
 
   def get(name: Token): Try[Any] = Try {
     val value = values.get(name.lexeme)
     (value, enclosing) match {
       case (Some(v), _) => v
       case (None, Some(enclosingEnv)) => enclosingEnv.get(name).get
-      case _ => throw new RuntimeError(name, s"Undefined variable '${name.lexeme}'.")
+      case _ => throw RuntimeError(name, s"Undefined variable '${name.lexeme}'.")
     }
   }
 }

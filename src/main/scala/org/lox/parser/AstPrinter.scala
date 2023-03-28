@@ -27,4 +27,9 @@ class AstPrinter extends Visitor[String] {
   override def visitAssignmentExpression(assign: Assign): String = parenthesize(assign.name.lexeme, assign.value)
 
   override def visitLogicalExpr(expr: Logical): String = parenthesize(expr.operator.lexeme, expr.left, expr.right)
+
+  override def visitCallExpr(expr: Call): String = {
+    val all = expr.callee :: expr.arguments
+    parenthesize("fn", all:_*)
+  }
 }

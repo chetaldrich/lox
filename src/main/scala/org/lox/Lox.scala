@@ -12,7 +12,7 @@ import scala.io.Source.fromFile
 import scala.util.{Failure, Success, Try}
 
 object Lox {
-  val interpreter = new Interpreter
+  val interpreter: Interpreter = Interpreter()
 
   def main(args: Array[String]): Unit = args match {
     case Array(fileName) => runFile(fileName)

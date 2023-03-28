@@ -1,11 +1,13 @@
 package org.lox
 
 import org.lox.lexer.Token
-import org.lox.lexer.TokenType.{Greater, GreaterEqual, LessEqual, Plus}
-import org.lox.parser.{Binary, Expr, ExpressionStmt, Literal, PrintStmt, Stmt}
+import org.lox.lexer.TokenType._
+import org.lox.parser._
 import org.lox.runtime.Interpreter
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
+
+import java.time.{Clock, Instant, ZoneOffset}
 
 class InterpreterTest extends AnyFlatSpec with should.Matchers {
 
@@ -13,7 +15,7 @@ class InterpreterTest extends AnyFlatSpec with should.Matchers {
 
   def testInterpreterOutput(expected: String, expression: Expr): Unit = {
     val output = new java.io.ByteArrayOutputStream()
-    val interpreter = new Interpreter
+    val interpreter = Interpreter()
     Console.withOut(output) {
       interpreter.interpret(printStmt(expression))
     }

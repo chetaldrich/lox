@@ -3,11 +3,20 @@ package org.lox.runtime
 import org.lox.lexer.TokenType._
 import org.lox.parser._
 import org.lox.lexer.Token
+import org.lox.runtime.builtins.Clock
 
 import scala.util.Try
 
-class Interpreter extends Visitor[Any] with StmtVisitor[Unit] {
-  private var environment: Environment = new Environment
+object Interpreter {
+  def apply(): Interpreter = {
+    val globals = new Environment
+    globals.defineGlobal("clock", Some(Clock()))
+    new Interpreter(globals)
+  }
+}
+
+class Interpreter(private val globals: Environment) extends Visitor[Any] with StmtVisitor[Unit] {
+  private var environment: Environment = globals
 
   def interpret(statements: Seq[Stmt]): Try[Unit] = Try {
     statements.foreach(execute)
@@ -99,7 +108,7 @@ class Interpreter extends Visitor[Any] with StmtVisitor[Unit] {
 
   def checkNumberOperands(operator: Token, operands: Any*): Unit = {
     if (operands.forall(_.isInstanceOf[Double])) return
-    throw new RuntimeError(operator, "Operands must be numbers")
+    throw RuntimeError(operator, "Operands must be numbers")
   }
 
   def isEqual(left: Any, right: Any): Boolean = (left, right) match {
@@ -111,7 +120,7 @@ class Interpreter extends Visitor[Any] with StmtVisitor[Unit] {
   def add(left: Any, right: Any, operator: Token): Any = (left, right) match {
     case (left: Double, right: Double) => left + right
     case (left: String, right: String) => left + right
-    case _ => throw new RuntimeError(operator, "Operands must be both Numbers or both Strings")
+    case _ => throw RuntimeError(operator, "Operands must be both Numbers or both Strings")
   }
 
   def evaluate(expr: Expr): Any = expr.accept(this)
@@ -145,5 +154,18 @@ class Interpreter extends Visitor[Any] with StmtVisitor[Unit] {
 
   override def visitBreakStmt(stmt: BreakStmt): Unit = {
     throw new BreakError()
+  }
+
+  override def visitCallExpr(expr: Call): Any = {
+    val callee = evaluate(expr.callee)
+    val arguments = expr.arguments.map(evaluate)
+    callee match {
+      case c: LoxCallable =>
+        if (arguments.size != c.arity) {
+          throw RuntimeError(expr.paren, s"Expected ${c.arity} arguments but got ${arguments.size}.")
+        }
+        c.call(this, arguments)
+      case _ => throw RuntimeError(expr.paren, "Can only call functions and classes.")
+    }
   }
 }

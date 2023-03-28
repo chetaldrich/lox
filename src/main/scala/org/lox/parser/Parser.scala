@@ -1,13 +1,14 @@
 package org.lox.parser
 
-import org.lox.lexer.{Token, TokenType}
-import org.lox.lexer.TokenType._
-import org.lox.parser.Parser.ParseError
 import org.lox.Lox
+import org.lox.lexer.TokenType._
+import org.lox.lexer.{Token, TokenType}
+import org.lox.parser.Parser.ParseError
 
 import scala.annotation.unused
 import scala.collection.mutable.ListBuffer
 import scala.util.Try
+import scala.util.control.Breaks.{break, breakable}
 
 object Parser {
   case class ParseError() extends RuntimeException
@@ -169,7 +170,35 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
 
   private def factor: Expr = matchWhile(unary, Slash, Star)()
 
-  private def unary: Expr = if (`match`(Bang, Minus)) Unary(previous, unary) else primary
+  private def unary: Expr = if (`match`(Bang, Minus)) Unary(previous, unary) else call
+
+  private def call: Expr = {
+    var expr = primary
+    breakable {
+      while (true) {
+        if (`match`(LeftParen)) {
+          expr = finishCall(expr)
+        } else {
+          break
+        }
+      }
+    }
+    expr
+  }
+
+  private def finishCall(callee: Expr) = {
+    val arguments: ListBuffer[Expr] = ListBuffer()
+    if (!check(RightParen)) {
+      do {
+        if (arguments.size >= 255) {
+          error(peek, "Can't have more than 255 arguments.")
+        }
+        arguments.addOne(expression)
+      } while (`match`(Comma))
+    }
+    val paren = consume(RightParen, "Expect ')' after arguments")
+    Call(callee, paren, arguments.toList)
+  }
 
   private def primary: Expr = {
     if (`match`(False)) Literal(false)

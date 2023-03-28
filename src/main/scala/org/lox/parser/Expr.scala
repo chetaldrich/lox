@@ -23,7 +23,13 @@ trait Visitor[R] {
   def visitUnaryExpr(expr: Unary): R
 
   def visitVarExpr(expr: Variable): R
+
+  def visitCallExpr(expr: Call): R
 }
+
+case class Call(callee: Expr, paren: Token, arguments: List[Expr]) extends Expr {
+  override def accept[R](visitor: Visitor[R]): R = visitor.visitCallExpr(this)
+ }
 
 case class Logical(left: Expr, operator: Token, right: Expr) extends Expr {
   override def accept[R](visitor: Visitor[R]): R = visitor.visitLogicalExpr(this)
