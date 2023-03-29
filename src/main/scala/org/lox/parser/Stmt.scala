@@ -3,65 +3,68 @@ package org.lox.parser
 import org.lox.lexer.Token
 
 sealed trait Stmt {
-  def accept[R](visitor: StmtVisitor[R]): R
+  def accept[R](visitor: Stmt.Visitor[R]): R
 }
 
-trait StmtVisitor[R] {
-  def visitBlockStmt(block: BlockStmt): R
+object Stmt {
+  trait Visitor[R] {
+    def visitBlockStmt(block: Block): R
 
-  def visitPrintStmt(printStmt: PrintStmt): R
+    def visitPrintStmt(printStmt: Print): R
 
-  def visitExpressionStmt(exprStmt: ExpressionStmt): R
+    def visitExpressionStmt(exprStmt: Expression): R
 
-  def visitVarStmt(varStmt: VarStmt): R
+    def visitVarStmt(varStmt: Var): R
 
-  def visitIfStmt(ifStmt: IfStmt): R
+    def visitIfStmt(ifStmt: If): R
 
-  def visitWhileStmt(stmt: WhileStmt): R
+    def visitWhileStmt(stmt: While): R
 
-  def visitBreakStmt(stmt: BreakStmt): R
+    def visitBreakStmt(stmt: Break): R
 
-  def visitFunctionStmt(stmt: FunctionStmt): R
+    def visitFunctionStmt(stmt: Function): R
 
-  def visitReturnStmt(stmt: ReturnStmt): R
+    def visitReturnStmt(stmt: Return): R
+  }
+
+  case class Break() extends Stmt {
+    override def accept[R](visitor: Stmt.Visitor[R]): R = visitor.visitBreakStmt(this)
+  }
+
+  case class While(condition: Expr, body: Stmt) extends Stmt {
+    override def accept[R](visitor: Stmt.Visitor[R]): R = visitor.visitWhileStmt(this)
+  }
+
+  case class If(condition: Expr, thenBranch: Stmt, elseBranch: Stmt) extends Stmt {
+    override def accept[R](visitor: Stmt.Visitor[R]): R = visitor.visitIfStmt(this)
+  }
+
+  case class Print(expr: Expr) extends Stmt {
+    override def accept[R](visitor: Stmt.Visitor[R]): R = visitor.visitPrintStmt(this)
+  }
+
+  case class Var(name: Token, initializer: Option[Expr]) extends Stmt {
+    override def accept[R](visitor: Stmt.Visitor[R]): R = visitor.visitVarStmt(this)
+  }
+
+  case class Expression(expr: Expr) extends Stmt {
+    override def accept[R](visitor: Stmt.Visitor[R]): R = visitor.visitExpressionStmt(this)
+  }
+
+  case class Block(stmts: List[Stmt]) extends Stmt {
+    override def accept[R](visitor: Stmt.Visitor[R]): R = visitor.visitBlockStmt(this)
+  }
+
+  case class Function(name: Token, params: List[Token], body: List[Stmt]) extends Stmt with ParsedFunction {
+    override def accept[R](visitor: Stmt.Visitor[R]): R = visitor.visitFunctionStmt(this)
+
+    override def fName: String = name.lexeme
+  }
+
+  case class Return(keyword: Token, value: Expr) extends Stmt {
+    override def accept[R](visitor: Stmt.Visitor[R]): R = visitor.visitReturnStmt(this)
+  }
 }
 
-case class BreakStmt() extends Stmt {
-  override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitBreakStmt(this)
-}
-
-case class WhileStmt(condition: Expr, body: Stmt) extends Stmt {
-  override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitWhileStmt(this)
-}
-
-case class IfStmt(condition: Expr, thenBranch: Stmt, elseBranch: Stmt) extends Stmt {
-  override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitIfStmt(this)
-}
-
-case class PrintStmt(expr: Expr) extends Stmt {
-  override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitPrintStmt(this)
-}
-
-case class VarStmt(name: Token, initializer: Option[Expr]) extends Stmt {
-  override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitVarStmt(this)
-}
-
-case class ExpressionStmt(expr: Expr) extends Stmt {
-  override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitExpressionStmt(this)
-}
-
-case class BlockStmt(stmts: List[Stmt]) extends Stmt {
-  override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitBlockStmt(this)
-}
-
-case class FunctionStmt(name: Token, params: List[Token], body: List[Stmt]) extends Stmt with ParsedFunction {
-  override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitFunctionStmt(this)
-
-  override def fName: String = name.lexeme
-}
-
-case class ReturnStmt(keyword: Token, value: Expr) extends Stmt {
-  override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitReturnStmt(this)
-}
 
 

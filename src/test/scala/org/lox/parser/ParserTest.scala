@@ -10,7 +10,7 @@ class ParserTest extends AnyFlatSpec with should.Matchers {
   val semicolon: Token = Token(TokenType.Semicolon, null)
   val eos: Seq[Token] = List(semicolon, eof)
 
-  def exprStmt(expr: Expr): List[ExpressionStmt] = List(ExpressionStmt(expr))
+  def exprStmt(expr: Expr): List[Stmt.Expression] = List(Stmt.Expression(expr))
 
   it should "accept a break statement inside a while loop" in {
     val tokens = List(
@@ -26,7 +26,7 @@ class ParserTest extends AnyFlatSpec with should.Matchers {
     )
 
     val statements = new Parser(tokens).parse
-    statements.get should be(List(WhileStmt(Literal(true), BlockStmt(List(BreakStmt())))))
+    statements.get should be(List(Stmt.While(Expr.Literal(true), Stmt.Block(List(Stmt.Break())))))
   }
 
   it should "accept an equality expression statement" in {
@@ -37,7 +37,7 @@ class ParserTest extends AnyFlatSpec with should.Matchers {
     ) ++ eos
 
     val statements = new Parser(tokens).parse
-    statements.get should be(exprStmt(Binary(Literal(1), Token(TokenType.EqualEqual, "==", null, 0), Literal(1))))
+    statements.get should be(exprStmt(Expr.Binary(Expr.Literal(1), Token(TokenType.EqualEqual, "=="), Expr.Literal(1))))
   }
 
   it should "accept a ternary expression statement" in {
@@ -50,7 +50,7 @@ class ParserTest extends AnyFlatSpec with should.Matchers {
     ) ++ eos
 
     val statements = new Parser(tokens).parse
-    statements.get should be(exprStmt(Ternary(Literal(true), Literal(1d), Literal(2d))))
+    statements.get should be(exprStmt(Expr.Ternary(Expr.Literal(true), Expr.Literal(1d), Expr.Literal(2d))))
   }
 
   it should "accept a declaration" in {
@@ -62,7 +62,7 @@ class ParserTest extends AnyFlatSpec with should.Matchers {
     ) ++ eos
 
     val statements = new Parser(tokens).parse
-    statements.get should be(List(VarStmt(Token(TokenType.Identifier, "a"), Some(Literal("global a")))))
+    statements.get should be(List(Stmt.Var(Token(TokenType.Identifier, "a"), Some(Expr.Literal("global a")))))
   }
 
   it should "accept a block" in {
@@ -78,7 +78,7 @@ class ParserTest extends AnyFlatSpec with should.Matchers {
     )
 
     val statements = new Parser(tokens).parse
-    statements.get should be(List(BlockStmt(List(VarStmt(Token(TokenType.Identifier, "a"), Some(Literal("global a")))))))
+    statements.get should be(List(Stmt.Block(List(Stmt.Var(Token(TokenType.Identifier, "a"), Some(Expr.Literal("global a")))))))
   }
 
   it should "accept a ternary expression with an equality expression as input" in {
@@ -94,6 +94,6 @@ class ParserTest extends AnyFlatSpec with should.Matchers {
     ) ++ eos
 
     val statements = new Parser(tokens).parse
-    statements.get should be(exprStmt(Ternary(Binary(Literal(true), equals, Literal(false)), Literal(1d), Literal(2d))))
+    statements.get should be(exprStmt(Expr.Ternary(Expr.Binary(Expr.Literal(true), equals, Expr.Literal(false)), Expr.Literal(1d), Expr.Literal(2d))))
   }
 }

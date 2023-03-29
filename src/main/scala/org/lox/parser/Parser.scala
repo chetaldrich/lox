@@ -51,14 +51,14 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     consume(RightParen, "Expect ')' after arguments.")
     consume(LeftBrace, s"Expect '{' before $kind body.")
     val body = block
-    FunctionStmt(name, args, body)
+    Stmt.Function(name, args, body)
   }
 
   private def varDeclaration: Stmt = {
     val name: Token = consume(Identifier, "Expected variable name.")
     val initializer: Option[Expr] = if (`match`(Equal)) Some(expression) else None
     consume(Semicolon, "Expected ';' after variable declaration.")
-    VarStmt(name, initializer)
+    Stmt.Var(name, initializer)
   }
 
   private def statement: Stmt = {
@@ -67,7 +67,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     else if (`match`(If)) ifStatement
     else if (`match`(For)) forStatement
     else if (`match`(While)) whileStatement
-    else if (`match`(LeftBrace)) BlockStmt(block)
+    else if (`match`(LeftBrace)) Stmt.Block(block)
     else if (`match`(Break)) breakStatement
     else expressionStatement
   }
@@ -76,7 +76,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     val keyword = previous
     val value = if (!check(Semicolon)) expression else null
     consume(Semicolon, "Expect ';' after return value.")
-    ReturnStmt(keyword, value)
+    Stmt.Return(keyword, value)
   }
 
   private def block: List[Stmt] = {
@@ -90,7 +90,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
 
   private def breakStatement: Stmt = {
     consume(Semicolon, "Expect ';' after 'break'.")
-    BreakStmt()
+    Stmt.Break()
   }
 
   private def forStatement: Stmt = {
@@ -110,17 +110,17 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
 
     initialBody.map { (body: Stmt) =>
       increment match {
-        case Some(i) => BlockStmt(List(body, ExpressionStmt(i)))
+        case Some(i) => Stmt.Block(List(body, Stmt.Expression(i)))
         case None => body
       }
     }.map { body =>
       condition match {
-        case Some(c) => WhileStmt(c, body)
-        case None => WhileStmt(Expr.Literal(true), body)
+        case Some(c) => Stmt.While(c, body)
+        case None => Stmt.While(Expr.Literal(true), body)
       }
     }.map { body =>
       initializer match {
-        case Some(i) => BlockStmt(List(i, body))
+        case Some(i) => Stmt.Block(List(i, body))
         case None => body
       }
     }.get
@@ -131,7 +131,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     val condition = expression
     consume(RightParen, "Expect ')' after condition.")
     val body = statement
-    WhileStmt(condition, body)
+    Stmt.While(condition, body)
   }
 
   private def ifStatement: Stmt = {
@@ -140,19 +140,19 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     consume(RightParen, "Expect ')' after 'if'")
     val thenBranch = statement
     val elseBranch = if (`match`(Else)) statement else null
-    IfStmt(condition, thenBranch = thenBranch, elseBranch = elseBranch)
+    Stmt.If(condition, thenBranch = thenBranch, elseBranch = elseBranch)
   }
 
   private def printStatement: Stmt = {
     val expr = expression
     consume(Semicolon, "Expect ';' after value")
-    PrintStmt(expr)
+    Stmt.Print(expr)
   }
 
   private def expressionStatement: Stmt = {
     val expr = expression
     consume(Semicolon, "Expect ';' after expression")
-    ExpressionStmt(expr)
+    Stmt.Expression(expr)
   }
 
   private def expression: Expr = assignment

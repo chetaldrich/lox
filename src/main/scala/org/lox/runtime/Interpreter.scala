@@ -16,7 +16,7 @@ object Interpreter {
   }
 }
 
-class Interpreter(val globals: Environment) extends Expr.Visitor[Any] with StmtVisitor[Unit] {
+class Interpreter(val globals: Environment) extends Expr.Visitor[Any] with Stmt.Visitor[Unit] {
   private var environment: Environment = globals
 
   def interpret(statements: Seq[Stmt]): Try[Unit] = Try {
@@ -35,13 +35,13 @@ class Interpreter(val globals: Environment) extends Expr.Visitor[Any] with StmtV
     case v => v.toString
   }
 
-  override def visitPrintStmt(printStmt: PrintStmt): Unit = println(stringify(evaluate(printStmt.expr)))
+  override def visitPrintStmt(printStmt: Stmt.Print): Unit = println(stringify(evaluate(printStmt.expr)))
 
-  override def visitExpressionStmt(expressionStmt: ExpressionStmt): Unit = evaluate(expressionStmt.expr)
+  override def visitExpressionStmt(expressionStmt: Stmt.Expression): Unit = evaluate(expressionStmt.expr)
 
   override def visitVarExpr(expr: Expr.Variable): Any = environment.get(expr.name).get
 
-  override def visitVarStmt(varStmt: VarStmt): Unit = {
+  override def visitVarStmt(varStmt: Stmt.Var): Unit = {
     val value: Option[Any] = varStmt.initializer.map(evaluate)
     environment.define(varStmt.name, value)
   }
@@ -51,7 +51,7 @@ class Interpreter(val globals: Environment) extends Expr.Visitor[Any] with StmtV
     environment.assign(assign.name, value)
   }
 
-  override def visitBlockStmt(block: BlockStmt): Unit = {
+  override def visitBlockStmt(block: Stmt.Block): Unit = {
     executeBlock(block.stmts, new Environment(Some(this.environment)))
   }
 
@@ -132,7 +132,7 @@ class Interpreter(val globals: Environment) extends Expr.Visitor[Any] with StmtV
     case _ => true
   }
 
-  override def visitIfStmt(ifStmt: IfStmt): Unit = {
+  override def visitIfStmt(ifStmt: Stmt.If): Unit = {
     if (isTruthy(evaluate(ifStmt.condition))) execute(ifStmt.thenBranch)
     else if (ifStmt.elseBranch != null) execute(ifStmt.elseBranch)
   }
@@ -144,7 +144,7 @@ class Interpreter(val globals: Environment) extends Expr.Visitor[Any] with StmtV
     else evaluate(expr.right)
   }
 
-  override def visitWhileStmt(stmt: WhileStmt): Unit = {
+  override def visitWhileStmt(stmt: Stmt.While): Unit = {
     try {
       while (isTruthy(evaluate(stmt.condition))) {
         execute(stmt.body)
@@ -154,7 +154,7 @@ class Interpreter(val globals: Environment) extends Expr.Visitor[Any] with StmtV
     }
   }
 
-  override def visitBreakStmt(stmt: BreakStmt): Unit = {
+  override def visitBreakStmt(stmt: Stmt.Break): Unit = {
     throw new BreakError()
   }
 
@@ -171,9 +171,9 @@ class Interpreter(val globals: Environment) extends Expr.Visitor[Any] with StmtV
     }
   }
 
-  override def visitFunctionStmt(stmt: FunctionStmt): Unit = environment.define(stmt.name, Some(LoxFunction(stmt, environment)))
+  override def visitFunctionStmt(stmt: Stmt.Function): Unit = environment.define(stmt.name, Some(LoxFunction(stmt, environment)))
 
-  override def visitReturnStmt(stmt: ReturnStmt): Unit = {
+  override def visitReturnStmt(stmt: Stmt.Return): Unit = {
     throw FunctionReturn(Option(stmt.value).map(evaluate).orNull)
   }
 

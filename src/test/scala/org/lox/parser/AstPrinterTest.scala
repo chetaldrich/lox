@@ -3,6 +3,7 @@ package org.lox.parser
 import org.lox.lexer.{Token, TokenType}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
+import org.lox.parser.Expr._
 
 class AstPrinterTest extends AnyFlatSpec with should.Matchers {
 
