@@ -176,4 +176,8 @@ class Interpreter(val globals: Environment) extends Visitor[Any] with StmtVisito
   override def visitReturnStmt(stmt: ReturnStmt): Unit = {
     throw FunctionReturn(Option(stmt.value).map(evaluate).orNull)
   }
- }
+
+  override def visitLambdaExpr(expr: Lambda): Any = {
+    LoxFunction(expr, environment)
+  }
+}

@@ -54,8 +54,10 @@ case class BlockStmt(stmts: List[Stmt]) extends Stmt {
   override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitBlockStmt(this)
 }
 
-case class FunctionStmt(name: Token, params: List[Token], body: List[Stmt]) extends Stmt {
+case class FunctionStmt(name: Token, params: List[Token], body: List[Stmt]) extends Stmt with ParsedFunction {
   override def accept[R](visitor: StmtVisitor[R]): R = visitor.visitFunctionStmt(this)
+
+  override def fName: String = name.lexeme
 }
 
 case class ReturnStmt(keyword: Token, value: Expr) extends Stmt {

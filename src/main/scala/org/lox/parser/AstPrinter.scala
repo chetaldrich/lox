@@ -32,4 +32,6 @@ class AstPrinter extends Visitor[String] {
     val all = expr.callee :: expr.arguments
     parenthesize("fn", all:_*)
   }
+
+  override def visitLambdaExpr(expr: Lambda): String = parenthesize(expr.fName)
 }

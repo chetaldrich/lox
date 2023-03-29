@@ -80,4 +80,12 @@ class LoxTest extends AnyFlatSpec with should.Matchers {
   it should "correctly execute the test_issue.lox example" in {
     testLoxFile("example_files/test_issue.lox", "0\n2")
   }
+
+  it should "correctly execute the anon_functions.lox example" in {
+    testLoxFile("example_files/anon_functions.lox", "1\n2\n3")
+  }
+
+  it should "correctly execute the anon_function_expression.lox example" in {
+    testLoxFile("example_files/anon_function_expression.lox", "")
+  }
 }

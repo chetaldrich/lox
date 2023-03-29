@@ -1,11 +1,11 @@
 package org.lox.runtime.functions
 
-import org.lox.parser.FunctionStmt
+import org.lox.parser.ParsedFunction
 import org.lox.runtime.{Environment, FunctionReturn, Interpreter, LoxCallable}
 
 import scala.util.Try
 
-case class LoxFunction(declaration: FunctionStmt, closure: Environment) extends LoxCallable {
+case class LoxFunction(declaration: ParsedFunction, closure: Environment) extends LoxCallable {
 
   override def arity: Int = declaration.params.size
 
@@ -19,5 +19,5 @@ case class LoxFunction(declaration: FunctionStmt, closure: Environment) extends 
       .getOrElse(null)
   }
 
-  override def toString: String = s"<fn ${declaration.name.lexeme}>"
+  override def toString: String = s"<fn ${declaration.fName}>"
 }

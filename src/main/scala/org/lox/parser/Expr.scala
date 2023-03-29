@@ -25,6 +25,8 @@ trait Visitor[R] {
   def visitVarExpr(expr: Variable): R
 
   def visitCallExpr(expr: Call): R
+
+  def visitLambdaExpr(expr: Lambda): R
 }
 
 case class Call(callee: Expr, paren: Token, arguments: List[Expr]) extends Expr {
@@ -61,4 +63,10 @@ case class Variable(name: Token) extends Expr {
 
 case class Assign(name: Token, value: Expr) extends Expr {
   override def accept[R](visitor: Visitor[R]): R = visitor.visitAssignmentExpression(this)
+}
+
+case class Lambda(params: List[Token], body: List[Stmt]) extends Expr with ParsedFunction {
+  override def accept[R](visitor: Visitor[R]): R = visitor.visitLambdaExpr(this)
+
+  override def fName: String = "anon_function"
 }

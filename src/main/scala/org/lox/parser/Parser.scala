@@ -39,6 +39,12 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
   }
 
   private def function(kind: String): Stmt = {
+    if (check(LeftParen)) {
+      // This situation is when you have an anonymous function that doesn't have a name.
+      // Backtrack so you can get the `fun` keyword and attempt to parse as an expression statement.
+      current -= 1
+      return expressionStatement
+    }
     val name: Token = consume(Identifier, s"Expect $kind name.")
     consume(LeftParen, s"Expect '(' after $kind name.")
     val args = arguments(() => consume(Identifier, "Expect parameter name."))
@@ -227,6 +233,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
   private def primary: Expr = {
     if (`match`(False)) Literal(false)
     else if (`match`(True)) Literal(true)
+    else if (`match`(Fun)) lambda
     else if (`match`(Nil)) Literal(null)
     else if (`match`(Number, String)) Literal(previous.literal)
     else if (`match`(Identifier)) Variable(previous)
@@ -235,6 +242,15 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
       consume(RightParen, "expected ')' after expression")
       Grouping(expr)
     } else throw error(peek, "Expected expression.")
+  }
+
+  private def lambda: Expr = {
+    consume(LeftParen, s"Expect '(' after anonymous function declaration.")
+    val params = arguments(() => consume(Identifier, "Expect parameter name."))
+    consume(RightParen, "Expect ')' after arguments.")
+    consume(LeftBrace, s"Expect '{' before anonymous function body.")
+    val body = block
+    Lambda(params, body)
   }
 
   def consume(`type`: TokenType, message: String): Token = {
