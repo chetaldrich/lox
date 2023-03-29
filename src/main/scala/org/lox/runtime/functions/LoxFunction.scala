@@ -5,11 +5,12 @@ import org.lox.runtime.{Environment, FunctionReturn, Interpreter, LoxCallable}
 
 import scala.util.Try
 
-case class LoxFunction(declaration: FunctionStmt) extends LoxCallable {
+case class LoxFunction(declaration: FunctionStmt, closure: Environment) extends LoxCallable {
+
   override def arity: Int = declaration.params.size
 
   override def call(interpreter: Interpreter, arguments: List[Any]): Any = {
-    val environment = new Environment(Some(interpreter.globals))
+    val environment = new Environment(Some(closure))
     declaration.params.zip(arguments).foreach { case (parameter, argument) =>
       environment.define(parameter, Some(argument))
     }

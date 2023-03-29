@@ -1,8 +1,8 @@
 package org.lox.runtime
 
+import org.lox.lexer.Token
 import org.lox.lexer.TokenType._
 import org.lox.parser._
-import org.lox.lexer.Token
 import org.lox.runtime.functions.LoxFunction
 import org.lox.runtime.functions.builtins.Clock
 
@@ -77,6 +77,7 @@ class Interpreter(val globals: Environment) extends Visitor[Any] with StmtVisito
       case LessEqual => operate(left, right, expr.operator, (a: Double, b: Double) => a <= b)
       case Less => operate(left, right, expr.operator, (a: Double, b: Double) => a < b)
       case BangEqual => !isEqual(left, right)
+      case EqualEqual => isEqual(left, right)
       case Plus => add(left, right, expr.operator)
       case _ => null
     }
@@ -170,7 +171,7 @@ class Interpreter(val globals: Environment) extends Visitor[Any] with StmtVisito
     }
   }
 
-  override def visitFunctionStmt(stmt: FunctionStmt): Unit = environment.define(stmt.name, Some(LoxFunction(stmt)))
+  override def visitFunctionStmt(stmt: FunctionStmt): Unit = environment.define(stmt.name, Some(LoxFunction(stmt, environment)))
 
   override def visitReturnStmt(stmt: ReturnStmt): Unit = {
     throw FunctionReturn(Option(stmt.value).map(evaluate).orNull)
