@@ -116,7 +116,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     }.map { body =>
       condition match {
         case Some(c) => WhileStmt(c, body)
-        case None => WhileStmt(Literal(true), body)
+        case None => WhileStmt(Expr.Literal(true), body)
       }
     }.map { body =>
       initializer match {
@@ -165,16 +165,16 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
       val value = assignment
 
       expr match {
-        case variable: Variable => Assign(variable.name, value)
+        case variable: Expr.Variable => Expr.Assign(variable.name, value)
         case _ => throw error(equals, "Invalid assignment target.")
       }
     } else expr
   }
 
-  private def or: Expr = matchWhile(and, Or)(Logical)
+  private def or: Expr = matchWhile(and, Or)(Expr.Logical)
 
 
-  private def and: Expr = matchWhile(ternary, And)(Logical)
+  private def and: Expr = matchWhile(ternary, And)(Expr.Logical)
 
 
   private def ternary: Expr = {
@@ -183,7 +183,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
       val `then` = equality
       consume(Colon, "Expected colon after ? in ternary expression.")
       val otherwise = equality
-      Ternary(expr, `then`, otherwise)
+      Expr.Ternary(expr, `then`, otherwise)
     } else expr
   }
 
@@ -195,7 +195,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
 
   private def factor: Expr = matchWhile(unary, Slash, Star)()
 
-  private def unary: Expr = if (`match`(Bang, Minus)) Unary(previous, unary) else call
+  private def unary: Expr = if (`match`(Bang, Minus)) Expr.Unary(previous, unary) else call
 
   private def call: Expr = {
     var expr = primary
@@ -227,20 +227,20 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
   private def finishCall(callee: Expr) = {
     val args = arguments(() => expression)
     val paren = consume(RightParen, "Expect ')' after arguments")
-    Call(callee, paren, args)
+    Expr.Call(callee, paren, args)
   }
 
   private def primary: Expr = {
-    if (`match`(False)) Literal(false)
-    else if (`match`(True)) Literal(true)
+    if (`match`(False)) Expr.Literal(false)
+    else if (`match`(True)) Expr.Literal(true)
     else if (`match`(Fun)) lambda
-    else if (`match`(Nil)) Literal(null)
-    else if (`match`(Number, String)) Literal(previous.literal)
-    else if (`match`(Identifier)) Variable(previous)
+    else if (`match`(Nil)) Expr.Literal(null)
+    else if (`match`(Number, String)) Expr.Literal(previous.literal)
+    else if (`match`(Identifier)) Expr.Variable(previous)
     else if (`match`(LeftParen)) {
       val expr = expression
       consume(RightParen, "expected ')' after expression")
-      Grouping(expr)
+      Expr.Grouping(expr)
     } else throw error(peek, "Expected expression.")
   }
 
@@ -250,7 +250,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     consume(RightParen, "Expect ')' after arguments.")
     consume(LeftBrace, s"Expect '{' before anonymous function body.")
     val body = block
-    Lambda(params, body)
+    Expr.Lambda(params, body)
   }
 
   def consume(`type`: TokenType, message: String): Token = {
@@ -259,7 +259,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     } else throw error(peek, message)
   }
 
-  private def matchWhile(rule: => Expr, tokens: TokenType*)(toExpr: (Expr, Token, Expr) => Expr = Binary): Expr = {
+  private def matchWhile(rule: => Expr, tokens: TokenType*)(toExpr: (Expr, Token, Expr) => Expr = Expr.Binary): Expr = {
     var expr = rule
     while (`match`(tokens: _*)) {
       expr = toExpr(expr, previous, rule)

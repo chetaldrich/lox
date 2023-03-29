@@ -16,7 +16,7 @@ object Interpreter {
   }
 }
 
-class Interpreter(val globals: Environment) extends Visitor[Any] with StmtVisitor[Unit] {
+class Interpreter(val globals: Environment) extends Expr.Visitor[Any] with StmtVisitor[Unit] {
   private var environment: Environment = globals
 
   def interpret(statements: Seq[Stmt]): Try[Unit] = Try {
@@ -39,14 +39,14 @@ class Interpreter(val globals: Environment) extends Visitor[Any] with StmtVisito
 
   override def visitExpressionStmt(expressionStmt: ExpressionStmt): Unit = evaluate(expressionStmt.expr)
 
-  override def visitVarExpr(expr: Variable): Any = environment.get(expr.name).get
+  override def visitVarExpr(expr: Expr.Variable): Any = environment.get(expr.name).get
 
   override def visitVarStmt(varStmt: VarStmt): Unit = {
     val value: Option[Any] = varStmt.initializer.map(evaluate)
     environment.define(varStmt.name, value)
   }
 
-  override def visitAssignmentExpression(assign: Assign): Any = {
+  override def visitAssignmentExpression(assign: Expr.Assign): Any = {
     val value = evaluate(assign.value)
     environment.assign(assign.name, value)
   }
@@ -65,7 +65,7 @@ class Interpreter(val globals: Environment) extends Visitor[Any] with StmtVisito
     }
   }
 
-  override def visitBinaryExpr(expr: Binary): Any = {
+  override def visitBinaryExpr(expr: Expr.Binary): Any = {
     val left = evaluate(expr.left)
     val right = evaluate(expr.right)
     expr.operator.tokenType match {
@@ -83,16 +83,16 @@ class Interpreter(val globals: Environment) extends Visitor[Any] with StmtVisito
     }
   }
 
-  override def visitGroupingExpr(expr: Grouping): Any = expr.accept(this)
+  override def visitGroupingExpr(expr: Expr.Grouping): Any = expr.accept(this)
 
-  override def visitLiteralExpr(expr: Literal): Any = expr.value
+  override def visitLiteralExpr(expr: Expr.Literal): Any = expr.value
 
-  override def visitTernaryExpr(expr: Ternary): Any = {
+  override def visitTernaryExpr(expr: Expr.Ternary): Any = {
     if (isTruthy(evaluate(expr.condition))) evaluate(expr.`then`)
     else evaluate(expr.otherwise)
   }
 
-  override def visitUnaryExpr(expr: Unary): Any = {
+  override def visitUnaryExpr(expr: Expr.Unary): Any = {
     val right = evaluate(expr.right)
     expr.operator.tokenType match {
       case Minus =>
@@ -137,7 +137,7 @@ class Interpreter(val globals: Environment) extends Visitor[Any] with StmtVisito
     else if (ifStmt.elseBranch != null) execute(ifStmt.elseBranch)
   }
 
-  override def visitLogicalExpr(expr: Logical): Any = {
+  override def visitLogicalExpr(expr: Expr.Logical): Any = {
     val left = evaluate(expr.left)
     if (expr.operator.tokenType == Or && isTruthy(left)) left
     else if (!isTruthy(left)) left
@@ -158,7 +158,7 @@ class Interpreter(val globals: Environment) extends Visitor[Any] with StmtVisito
     throw new BreakError()
   }
 
-  override def visitCallExpr(expr: Call): Any = {
+  override def visitCallExpr(expr: Expr.Call): Any = {
     val callee = evaluate(expr.callee)
     val arguments = expr.arguments.map(evaluate)
     callee match {
@@ -177,7 +177,7 @@ class Interpreter(val globals: Environment) extends Visitor[Any] with StmtVisito
     throw FunctionReturn(Option(stmt.value).map(evaluate).orNull)
   }
 
-  override def visitLambdaExpr(expr: Lambda): Any = {
+  override def visitLambdaExpr(expr: Expr.Lambda): Any = {
     LoxFunction(expr, environment)
   }
 }
