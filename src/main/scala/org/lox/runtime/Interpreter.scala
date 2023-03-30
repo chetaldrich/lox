@@ -17,6 +17,8 @@ object Interpreter {
 }
 
 class Interpreter(val globals: Environment) extends Expr.Visitor[Any] with Stmt.Visitor[Unit] {
+  def resolve(expr: Expr, i: Int) = ???
+
   private var environment: Environment = globals
 
   def interpret(statements: Seq[Stmt]): Try[Unit] = Try {
@@ -46,7 +48,7 @@ class Interpreter(val globals: Environment) extends Expr.Visitor[Any] with Stmt.
     environment.define(varStmt.name, value)
   }
 
-  override def visitAssignmentExpression(assign: Expr.Assign): Any = {
+  override def visitAssignExpr(assign: Expr.Assign): Any = {
     val value = evaluate(assign.value)
     environment.assign(assign.name, value)
   }

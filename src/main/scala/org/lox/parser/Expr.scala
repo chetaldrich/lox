@@ -7,7 +7,7 @@ object Expr {
 
     def visitLogicalExpr(expr: Logical): R
 
-    def visitAssignmentExpression(assign: Assign): R
+    def visitAssignExpr(assign: Assign): R
 
     def visitTernaryExpr(expr: Ternary): R
 
@@ -60,7 +60,7 @@ object Expr {
   }
 
   case class Assign(name: Token, value: Expr) extends Expr {
-    override def accept[R](visitor: Expr.Visitor[R]): R = visitor.visitAssignmentExpression(this)
+    override def accept[R](visitor: Expr.Visitor[R]): R = visitor.visitAssignExpr(this)
   }
 
   case class Lambda(params: List[Token], body: List[Stmt]) extends Expr with ParsedFunction {
