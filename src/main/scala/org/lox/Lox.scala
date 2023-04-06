@@ -6,6 +6,7 @@ import org.jline.terminal.TerminalBuilder
 import org.lox.lexer.TokenType.EOF
 import org.lox.lexer.{Scanner, Token}
 import org.lox.parser.{Expr, Parser, Stmt}
+import org.lox.resolver.Resolver
 import org.lox.runtime.Interpreter
 
 import scala.io.Source.fromFile
@@ -70,6 +71,7 @@ object Lox {
 
   def run(source: String, shouldError: Boolean = true): Option[Unit] = for {
     statements <- handle(parse(source, tokens => new Parser(tokens).parse), 65, shouldError)
+    _ <- handle(Try(Resolver(interpreter).resolve(statements)), 65, shouldError)
     result <- handle(interpreter.interpret(statements), 65, shouldError)
   } yield result
 

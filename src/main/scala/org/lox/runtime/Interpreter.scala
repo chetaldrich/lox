@@ -6,6 +6,7 @@ import org.lox.parser._
 import org.lox.runtime.functions.LoxFunction
 import org.lox.runtime.functions.builtins.Clock
 
+import scala.collection.mutable
 import scala.util.Try
 
 object Interpreter {
@@ -16,10 +17,15 @@ object Interpreter {
   }
 }
 
-class Interpreter(val globals: Environment) extends Expr.Visitor[Any] with Stmt.Visitor[Unit] {
-  def resolve(expr: Expr, i: Int) = ???
+class Interpreter(val globals: Environment,
+                  private val locals: mutable.Map[Expr, Int] = mutable.Map())
+  extends Expr.Visitor[Any] with Stmt.Visitor[Unit] {
 
   private var environment: Environment = globals
+
+  def resolve(expr: Expr, depth: Int): Unit = {
+    locals.put(expr, depth)
+  }
 
   def interpret(statements: Seq[Stmt]): Try[Unit] = Try {
     statements.foreach(execute)
@@ -41,7 +47,15 @@ class Interpreter(val globals: Environment) extends Expr.Visitor[Any] with Stmt.
 
   override def visitExpressionStmt(expressionStmt: Stmt.Expression): Unit = evaluate(expressionStmt.expr)
 
-  override def visitVarExpr(expr: Expr.Variable): Any = environment.get(expr.name).get
+  override def visitVarExpr(expr: Expr.Variable): Any = {
+    lookupVariable(expr.name, expr)
+  }
+
+  private def lookupVariable(name: Token, expr: Expr): Any = {
+    val distance: Option[Int] = locals.get(expr)
+    distance.map(environment.getAt(_, name))
+      .getOrElse(globals.get(name).get)
+  }
 
   override def visitVarStmt(varStmt: Stmt.Var): Unit = {
     val value: Option[Any] = varStmt.initializer.map(evaluate)
@@ -50,7 +64,10 @@ class Interpreter(val globals: Environment) extends Expr.Visitor[Any] with Stmt.
 
   override def visitAssignExpr(assign: Expr.Assign): Any = {
     val value = evaluate(assign.value)
-    environment.assign(assign.name, value)
+    locals.get(assign) match {
+      case Some(distance) => environment.assignAt(distance, assign.name, value)
+      case None => globals.assign(assign.name, value)
+    }
   }
 
   override def visitBlockStmt(block: Stmt.Block): Unit = {

@@ -6,12 +6,13 @@ import org.lox.parser.{Expr, Stmt}
 import org.lox.runtime.Interpreter
 
 import scala.collection.mutable
+import scala.util.Try
 
 case class Resolver(interpreter: Interpreter) extends Expr.Visitor[Unit] with Stmt.Visitor[Unit] {
 
   val scopes: mutable.Stack[mutable.Map[String, Boolean]] = new mutable.Stack
 
-  private def resolve(stmts: List[Stmt]): Unit = stmts.foreach(resolve)
+  def resolve(stmts: List[Stmt]): Unit = stmts.foreach(resolve)
 
   private def resolve(stmt: Stmt): Unit = stmt.accept(this)
 

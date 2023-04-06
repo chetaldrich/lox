@@ -2,11 +2,13 @@ package org.lox.runtime
 
 import org.lox.lexer.Token
 import org.lox.lexer.TokenType.Identifier
+import org.scalactic.TimesOnInt.convertIntToRepeater
 
 import scala.collection.mutable
 import scala.util.Try
 
 class Environment(private val enclosing: Option[Environment] = None) {
+
   private val values: mutable.Map[String, Any] = mutable.HashMap()
 
   def assign(name: Token, value: Any): Any = {
@@ -29,6 +31,18 @@ class Environment(private val enclosing: Option[Environment] = None) {
       case (None, Some(enclosingEnv)) => enclosingEnv.get(name).get
       case _ => throw RuntimeError(name, s"Undefined variable '${name.lexeme}'.")
     }
+  }
+
+  def assignAt(distance: Int, name: Token, value: Any): Unit = ancestor(distance).values.put(name.lexeme, value)
+
+  def getAt(distance: Int, name: Token): Any = ancestor(distance).values.get(name.lexeme)
+
+  private def ancestor(distance: Int): Environment = {
+    var environment = this
+    distance.times {
+      environment = environment.enclosing.get
+    }
+    environment
   }
 
   // used for debugging
