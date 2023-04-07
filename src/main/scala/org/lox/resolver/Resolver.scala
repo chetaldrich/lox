@@ -2,15 +2,15 @@ package org.lox.resolver
 
 import org.lox.Lox
 import org.lox.lexer.Token
-import org.lox.parser.{Expr, Stmt}
+import org.lox.parser.{Expr, ParsedFunction, Stmt}
 import org.lox.runtime.Interpreter
 
 import scala.collection.mutable
-import scala.util.Try
 
 case class Resolver(interpreter: Interpreter) extends Expr.Visitor[Unit] with Stmt.Visitor[Unit] {
 
-  val scopes: mutable.Stack[mutable.Map[String, Boolean]] = new mutable.Stack
+  private val scopes: mutable.Stack[mutable.Map[String, Boolean]] = new mutable.Stack
+  private var currentFunction: FunctionType = FunctionType.None
 
   def resolve(stmts: List[Stmt]): Unit = stmts.foreach(resolve)
 
@@ -26,7 +26,11 @@ case class Resolver(interpreter: Interpreter) extends Expr.Visitor[Unit] with St
 
   private def declare(name: Token): Unit = {
     if (scopes.isEmpty) return
-    scopes.top.put(name.lexeme, false)
+    val scope = scopes.top
+    if (scope.contains(name.lexeme)) {
+      Lox.error(name, "Already a variable with this name in this scope.")
+    }
+    scope.put(name.lexeme, false)
   }
 
   private def define(name: Token): Unit = {
@@ -76,13 +80,7 @@ case class Resolver(interpreter: Interpreter) extends Expr.Visitor[Unit] with St
     }
   }
 
-  override def visitLambdaExpr(expr: Expr.Lambda): Unit = {
-    expr.params.foreach { param =>
-      declare(param)
-      define(param)
-    }
-    resolve(expr.body)
-  }
+  override def visitLambdaExpr(expr: Expr.Lambda): Unit = resolveFunction(expr, FunctionType.Function)
 
   override def visitBlockStmt(block: Stmt.Block): Unit = scoped {
     resolve(block.stmts)
@@ -113,19 +111,29 @@ case class Resolver(interpreter: Interpreter) extends Expr.Visitor[Unit] with St
 
   override def visitBreakStmt(stmt: Stmt.Break): Unit = {}
 
-  private def resolveFunction(function: Stmt.Function): Unit = scoped {
-    function.params.foreach { param =>
-      declare(param)
-      define(param)
+  private def resolveFunction(function: ParsedFunction, functionType: FunctionType): Unit = {
+    val enclosingFunction = currentFunction
+    currentFunction = functionType
+    scoped {
+      function.params.foreach { param =>
+        declare(param)
+        define(param)
+      }
+      resolve(function.body)
     }
-    resolve(function.body)
+    currentFunction = enclosingFunction
   }
 
   override def visitFunctionStmt(stmt: Stmt.Function): Unit = {
     declare(stmt.name)
     define(stmt.name)
-    resolveFunction(stmt)
+    resolveFunction(stmt, FunctionType.Function)
   }
 
-  override def visitReturnStmt(stmt: Stmt.Return): Unit = if (stmt.value != null) resolve(stmt.value)
+  override def visitReturnStmt(stmt: Stmt.Return): Unit = {
+    if (currentFunction == FunctionType.None) {
+      Lox.error(stmt.keyword, "Can't return from top-level code.")
+    }
+    if (stmt.value != null) resolve(stmt.value)
+  }
 }
