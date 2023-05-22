@@ -26,9 +26,23 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
 
   def parseExpression: Try[Expr] = Try(expression)
 
+  def classDeclaration(): Stmt = {
+    val name = consume(Identifier, "Expect class name.")
+    consume(LeftBrace, "Expect '{' before class body.")
+
+    val methods: ListBuffer[Stmt.Function] = ListBuffer()
+    while (!check(RightBrace) && !isAtEnd) {
+      methods.addOne(function("method"))
+    }
+
+    consume(RightBrace, "Expect '}' after class body.")
+    Stmt.Class(name, methods.toList)
+  }
+
   private def declaration: Stmt = {
     try {
       if (`match`(Var)) varDeclaration
+      else if (`match`(Class)) classDeclaration()
       else if (`match`(Fun)) function("function")
       else statement
     } catch {
@@ -38,12 +52,12 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     }
   }
 
-  private def function(kind: String): Stmt = {
+  private def function(kind: String): Stmt.Function = {
     if (check(LeftParen)) {
       // This situation is when you have an anonymous function that doesn't have a name.
       // Backtrack so you can get the `fun` keyword and attempt to parse as an expression statement.
       current -= 1
-      return expressionStatement
+      return expressionStatement.asInstanceOf[Stmt.Function]
     }
     val name: Token = consume(Identifier, s"Expect $kind name.")
     consume(LeftParen, s"Expect '(' after $kind name.")
@@ -166,6 +180,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
 
       expr match {
         case variable: Expr.Variable => Expr.Assign(variable.name, value)
+        case get: Expr.Get => Expr.Set(get.obj, get.name, value)
         case _ => throw error(equals, "Invalid assignment target.")
       }
     } else expr
@@ -203,6 +218,9 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
       while (true) {
         if (`match`(LeftParen)) {
           expr = finishCall(expr)
+        } else if (`match`(Dot)) {
+          val name = consume(Identifier, "Expect property name after '.'.")
+          expr = Expr.Get(expr, name)
         } else {
           break
         }
@@ -236,6 +254,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     else if (`match`(Fun)) lambda
     else if (`match`(Nil)) Expr.Literal(null)
     else if (`match`(Number, String)) Expr.Literal(previous.literal)
+    else if (`match`(This)) Expr.This(previous)
     else if (`match`(Identifier)) Expr.Variable(previous)
     else if (`match`(LeftParen)) {
       val expr = expression

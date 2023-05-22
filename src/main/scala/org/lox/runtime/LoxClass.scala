@@ -1,0 +1,25 @@
+package org.lox.runtime
+
+import org.lox.runtime.functions.LoxFunction
+
+case class LoxClass(name: String, methods: Map[String, LoxFunction]) extends LoxCallable {
+  def findMethod(name: String): LoxFunction = methods.getOrElse(name, null)
+
+  override def toString: String = name
+
+  override def arity: Int = {
+    val initializer = findMethod("init")
+    if (initializer == null) 0
+    else initializer.arity
+  }
+
+  override def call(interpreter: Interpreter, arguments: List[Any]): Any = {
+    val instance = LoxInstance(this)
+    val initializer = findMethod("init")
+    if (initializer != null) {
+      initializer.bind(instance).call(interpreter, arguments)
+    }
+
+    instance
+  }
+}

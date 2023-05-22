@@ -190,13 +190,45 @@ class Interpreter(val globals: Environment,
     }
   }
 
-  override def visitFunctionStmt(stmt: Stmt.Function): Unit = environment.define(stmt.name, Some(LoxFunction(stmt, environment)))
+  override def visitFunctionStmt(stmt: Stmt.Function): Unit = {
+    environment.define(stmt.name, Some(LoxFunction(stmt, environment, isInitializer = false)))
+  }
 
   override def visitReturnStmt(stmt: Stmt.Return): Unit = {
     throw FunctionReturn(Option(stmt.value).map(evaluate).orNull)
   }
 
   override def visitLambdaExpr(expr: Expr.Lambda): Any = {
-    LoxFunction(expr, environment)
+    LoxFunction(expr, environment, isInitializer = false)
   }
+
+  override def visitClassStmt(clazz: Stmt.Class): Unit = {
+    environment.define(clazz.name, None)
+
+    val methods = mutable.Map[String, LoxFunction]()
+    for (method <- clazz.methods) {
+      val function = LoxFunction(method, environment, method.name.lexeme == "init")
+      methods.put(method.name.lexeme, function)
+    }
+
+    val klass = LoxClass(clazz.name.lexeme, methods.toMap)
+    environment.assign(clazz.name, klass)
+  }
+
+  override def visitGetExpr(get: Expr.Get): Any = evaluate(get.obj) match {
+    case instance: LoxInstance => instance.get(get.name)
+    case _ => throw RuntimeError(get.name, "Only instances have properties.")
+  }
+
+  override def visitSetExpr(set: Expr.Set): Any = {
+    val obj = evaluate(set.obj)
+    obj match {
+      case instance: LoxInstance =>
+        val value = evaluate(set.value)
+        instance.set(set.name, value)
+      case _ => throw RuntimeError(set.name, "Only instances have fields.")
+    }
+  }
+
+  override def visitThisExpr(value: Expr.This): Any = lookupVariable(value.keyword, value)
 }

@@ -4,6 +4,11 @@ import org.lox.lexer.Token
 
 object Expr {
   trait Visitor[R] {
+    def visitThisExpr(value: This): R
+
+    def visitSetExpr(set: Set): R
+
+    def visitGetExpr(get: Get): R
 
     def visitLogicalExpr(expr: Logical): R
 
@@ -29,6 +34,14 @@ object Expr {
 
   case class Call(callee: Expr, paren: Token, arguments: List[Expr]) extends Expr {
     override def accept[R](visitor: Expr.Visitor[R]): R = visitor.visitCallExpr(this)
+  }
+
+  case class Get(obj: Expr, name: Token) extends Expr {
+    override def accept[R](visitor: Visitor[R]): R = visitor.visitGetExpr(this)
+  }
+
+  case class Set(obj: Expr, name: Token, value: Expr) extends Expr {
+    override def accept[R](visitor: Visitor[R]): R = visitor.visitSetExpr(this)
   }
 
   case class Logical(left: Expr, operator: Token, right: Expr) extends Expr {
@@ -67,6 +80,10 @@ object Expr {
     override def accept[R](visitor: Expr.Visitor[R]): R = visitor.visitLambdaExpr(this)
 
     override def fName: String = "anon_function"
+  }
+
+  case class This(keyword: Token) extends Expr {
+    override def accept[R](visitor: Visitor[R]): R = visitor.visitThisExpr(this)
   }
 }
 

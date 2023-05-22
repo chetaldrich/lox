@@ -22,6 +22,8 @@ class Environment(private val enclosing: Option[Environment] = None) {
 
   def define(name: Token, value: Option[Any]): Unit = values.put(name.lexeme, value.orNull)
 
+  def defineStr(name: String, value: Option[Any]): Unit = values.put(name, value.orNull)
+
   def defineGlobal(name: String, value: Option[Any]): Unit = values.put(name, value.orNull)
 
   def get(name: Token): Try[Any] = Try {
@@ -36,6 +38,8 @@ class Environment(private val enclosing: Option[Environment] = None) {
   def assignAt(distance: Int, name: Token, value: Any): Unit = ancestor(distance).values.put(name.lexeme, value)
 
   def getAt(distance: Int, name: Token): Any = ancestor(distance).values.get(name.lexeme)
+
+  def getAtStr(distance: Int, name: String): Any = ancestor(distance).values.get(name)
 
   private def ancestor(distance: Int): Environment = {
     var environment = this

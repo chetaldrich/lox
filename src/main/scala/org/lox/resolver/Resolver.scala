@@ -11,6 +11,7 @@ case class Resolver(interpreter: Interpreter) extends Expr.Visitor[Unit] with St
 
   private val scopes: mutable.Stack[mutable.Map[String, Boolean]] = new mutable.Stack
   private var currentFunction: FunctionType = FunctionType.None
+  private var currentClass: ClassType = ClassType.None
 
   def resolve(stmts: List[Stmt]): Unit = stmts.foreach(resolve)
 
@@ -134,6 +135,47 @@ case class Resolver(interpreter: Interpreter) extends Expr.Visitor[Unit] with St
     if (currentFunction == FunctionType.None) {
       Lox.error(stmt.keyword, "Can't return from top-level code.")
     }
-    if (stmt.value != null) resolve(stmt.value)
+    if (stmt.value != null) {
+      if (currentFunction == FunctionType.Initializer) {
+        Lox.error(stmt.keyword, "Can't return a value from an initializer.")
+      }
+      resolve(stmt.value)
+    }
+  }
+
+  override def visitClassStmt(clazz: Stmt.Class): Unit = {
+    val enclosingClass = currentClass
+    currentClass = ClassType.Class
+
+    declare(clazz.name)
+    define(clazz.name)
+
+    scoped {
+      scopes.top.put("this", true)
+
+      clazz.methods.foreach { method =>
+        val declaration = if (method.name.lexeme.equals("init")) {
+          FunctionType.Initializer
+        } else FunctionType.Method
+        resolveFunction(method, declaration)
+      }
+    }
+    currentClass = enclosingClass
+  }
+
+  override def visitGetExpr(get: Expr.Get): Unit = resolve(get.obj)
+
+  override def visitSetExpr(set: Expr.Set): Unit = {
+    resolve(set.value)
+    resolve(set.obj)
+  }
+
+  override def visitThisExpr(value: Expr.This): Unit = {
+    if (currentClass == ClassType.None) {
+      Lox.error(value.keyword, "Can't use 'this' outside of a class.")
+      return
+    }
+
+    resolveLocal(value, value.keyword)
   }
 }

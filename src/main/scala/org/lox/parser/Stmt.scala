@@ -8,6 +8,8 @@ sealed trait Stmt {
 
 object Stmt {
   trait Visitor[R] {
+    def visitClassStmt(clazz: Class): R
+
     def visitBlockStmt(block: Block): R
 
     def visitPrintStmt(printStmt: Print): R
@@ -63,6 +65,10 @@ object Stmt {
 
   case class Return(keyword: Token, value: Expr) extends Stmt {
     override def accept[R](visitor: Stmt.Visitor[R]): R = visitor.visitReturnStmt(this)
+  }
+
+  case class Class(name: Token, methods: List[Stmt.Function]) extends Stmt {
+    override def accept[R](visitor: Visitor[R]): R = visitor.visitClassStmt(this)
   }
 }
 
