@@ -7,7 +7,7 @@ import org.scalactic.TimesOnInt.convertIntToRepeater
 import scala.collection.mutable
 import scala.util.Try
 
-class Environment(private val enclosing: Option[Environment] = None) {
+class Environment(val enclosing: Option[Environment] = None) {
 
   private val values: mutable.Map[String, Any] = mutable.HashMap()
 

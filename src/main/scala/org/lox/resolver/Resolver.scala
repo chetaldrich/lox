@@ -20,10 +20,14 @@ case class Resolver(interpreter: Interpreter) extends Expr.Visitor[Unit] with St
   private def resolve(exprs: Expr*): Unit = exprs.foreach(_.accept(this))
 
   private def scoped(fn: => Unit): Unit = {
-    scopes.push(mutable.Map())
+    beginScope()
     fn
-    scopes.pop()
+    endScope()
   }
+
+  private def beginScope(): Unit = scopes.push(mutable.Map())
+
+  private def endScope(): Unit = scopes.pop()
 
   private def declare(name: Token): Unit = {
     if (scopes.isEmpty) return
@@ -150,6 +154,20 @@ case class Resolver(interpreter: Interpreter) extends Expr.Visitor[Unit] with St
     declare(clazz.name)
     define(clazz.name)
 
+    clazz.superclass.foreach { superclass =>
+      if (clazz.name.lexeme.equals(superclass.name.lexeme)) {
+        Lox.error(superclass.name, "A class can't inherit from itself")
+      }
+      currentClass = ClassType.SubClass
+      resolve(superclass)
+    }
+
+    clazz.superclass match {
+      case Some(_) =>
+        beginScope()
+        scopes.top.put("super", true)
+    }
+
     scoped {
       scopes.top.put("this", true)
 
@@ -160,6 +178,9 @@ case class Resolver(interpreter: Interpreter) extends Expr.Visitor[Unit] with St
         resolveFunction(method, declaration)
       }
     }
+
+    if (clazz.superclass.nonEmpty) endScope()
+
     currentClass = enclosingClass
   }
 
@@ -177,5 +198,15 @@ case class Resolver(interpreter: Interpreter) extends Expr.Visitor[Unit] with St
     }
 
     resolveLocal(value, value.keyword)
+  }
+
+  override def visitSuperExpr(expr: Expr.Super): Unit = {
+    if (currentClass == ClassType.None) {
+      Lox.error(expr.keyword, "Can't use 'super' outside of a class.")
+    } else if (currentClass != ClassType.SubClass) {
+      Lox.error(expr.keyword, "Can't use 'super' in a class with no superclass.")
+    }
+
+    resolveLocal(expr, expr.keyword)
   }
 }

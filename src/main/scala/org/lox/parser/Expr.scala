@@ -4,6 +4,8 @@ import org.lox.lexer.Token
 
 object Expr {
   trait Visitor[R] {
+    def visitSuperExpr(expr: Super): R
+
     def visitThisExpr(value: This): R
 
     def visitSetExpr(set: Set): R
@@ -84,6 +86,10 @@ object Expr {
 
   case class This(keyword: Token) extends Expr {
     override def accept[R](visitor: Visitor[R]): R = visitor.visitThisExpr(this)
+  }
+
+  case class Super(keyword: Token, method: Token) extends Expr {
+    override def accept[R](visitor: Visitor[R]): R = visitor.visitSuperExpr(this)
   }
 }
 

@@ -203,7 +203,22 @@ class Interpreter(val globals: Environment,
   }
 
   override def visitClassStmt(clazz: Stmt.Class): Unit = {
+    val superclass = clazz.superclass.map { sclass =>
+      val superclass = evaluate(sclass)
+      superclass match {
+        case LoxClass =>
+        case _ => throw RuntimeError(sclass.name, "Superclass must be a class.")
+      }
+      superclass.asInstanceOf[LoxClass]
+    }.orNull
+
+
     environment.define(clazz.name, None)
+
+    if (clazz.superclass.nonEmpty) {
+      environment = new Environment(Some(environment))
+      environment.defineStr("super", Some(superclass))
+    }
 
     val methods = mutable.Map[String, LoxFunction]()
     for (method <- clazz.methods) {
@@ -211,7 +226,12 @@ class Interpreter(val globals: Environment,
       methods.put(method.name.lexeme, function)
     }
 
-    val klass = LoxClass(clazz.name.lexeme, methods.toMap)
+    val klass = LoxClass(clazz.name.lexeme, superclass, methods.toMap)
+
+    if (superclass != null) {
+      environment = environment.enclosing.get
+    }
+
     environment.assign(clazz.name, klass)
   }
 
@@ -231,4 +251,17 @@ class Interpreter(val globals: Environment,
   }
 
   override def visitThisExpr(value: Expr.This): Any = lookupVariable(value.keyword, value)
+
+  override def visitSuperExpr(expr: Expr.Super): Any = {
+    val distance = locals.get(expr)
+    val superclass = environment.getAtStr(distance.get, "super").asInstanceOf[LoxClass]
+    val obj = environment.getAtStr(distance.get - 1, "this").asInstanceOf[LoxInstance]
+    val method = superclass.findMethod(expr.method.lexeme)
+
+    if (method == null) {
+      throw RuntimeError(expr.method, s"Undefined property '${expr.method.lexeme}'.")
+    }
+
+    method.bind(obj)
+  }
 }

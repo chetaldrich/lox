@@ -2,8 +2,16 @@ package org.lox.runtime
 
 import org.lox.runtime.functions.LoxFunction
 
-case class LoxClass(name: String, methods: Map[String, LoxFunction]) extends LoxCallable {
-  def findMethod(name: String): LoxFunction = methods.getOrElse(name, null)
+case class LoxClass(name: String, superclass: LoxClass, methods: Map[String, LoxFunction]) extends LoxCallable {
+  def findMethod(name: String): LoxFunction = {
+    val method = methods.getOrElse(name, null)
+    if (method != null) {
+      return method
+    }
+
+    if (superclass != null) superclass.findMethod(name)
+    else null
+  }
 
   override def toString: String = name
 

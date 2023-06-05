@@ -28,6 +28,12 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
 
   def classDeclaration(): Stmt = {
     val name = consume(Identifier, "Expect class name.")
+
+    val superclass: Option[Expr.Variable] = if (`match`(Less)) {
+      consume(Identifier, "Expect superclass name.")
+      Some(Expr.Variable(previous))
+    } else None
+
     consume(LeftBrace, "Expect '{' before class body.")
 
     val methods: ListBuffer[Stmt.Function] = ListBuffer()
@@ -36,7 +42,7 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     }
 
     consume(RightBrace, "Expect '}' after class body.")
-    Stmt.Class(name, methods.toList)
+    Stmt.Class(name, superclass, methods.toList)
   }
 
   private def declaration: Stmt = {
@@ -255,6 +261,12 @@ class Parser(tokens: Seq[Token], private var current: Int = 0, val shouldLog: Bo
     else if (`match`(Nil)) Expr.Literal(null)
     else if (`match`(Number, String)) Expr.Literal(previous.literal)
     else if (`match`(This)) Expr.This(previous)
+    else if (`match`(Super)) {
+      val keyword = previous
+      consume(Dot, "Expect '.' after 'super'.")
+      val method = consume(Identifier, "Expect superclass method name.")
+      Expr.Super(keyword, method)
+    }
     else if (`match`(Identifier)) Expr.Variable(previous)
     else if (`match`(LeftParen)) {
       val expr = expression

@@ -67,7 +67,7 @@ object Stmt {
     override def accept[R](visitor: Stmt.Visitor[R]): R = visitor.visitReturnStmt(this)
   }
 
-  case class Class(name: Token, methods: List[Stmt.Function]) extends Stmt {
+  case class Class(name: Token, superclass: Option[Expr.Variable], methods: List[Stmt.Function]) extends Stmt {
     override def accept[R](visitor: Visitor[R]): R = visitor.visitClassStmt(this)
   }
 }
