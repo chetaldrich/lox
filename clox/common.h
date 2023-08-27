@@ -6,6 +6,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-char* name();
+#define DEBUG_TRACE_EXECUTION
 
 #endif
