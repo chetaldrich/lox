@@ -14,9 +14,13 @@ VM vm;
 void initVM() {
   resetStack();
   vm.objects = NULL;
+  initTable(&vm.strings);
 }
 
-void freeVM() { freeObjects(); }
+void freeVM() {
+  freeTable(&vm.strings);
+  freeObjects();
+}
 
 static void resetStack() { vm.stackTop = vm.stack; }
 
