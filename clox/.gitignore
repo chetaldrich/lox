@@ -1,2 +1,4 @@
 clox
 .vscode/
+cmake-build-debug
+build/

@@ -76,7 +76,6 @@ static void error(const char *message) { errorAt(&parser.previous, message); }
 static void advance() {
   parser.previous = parser.current;
   for (;;) {
-    printf("advance\n");
     parser.current = scanToken();
     if (parser.current.type != TOKEN_ERROR) {
       break;
@@ -127,7 +126,6 @@ static void endCompiler() {
 static void expression() { parsePrecedence(PREC_ASSIGNMENT); }
 
 static uint8_t makeConstant(Value value) {
-  printf("makeConstant\n");
   int constant = addConstant(currentChunk(), value);
   if (constant > UINT8_MAX) {
     error("Too many constants in one chunk.");
@@ -142,14 +140,11 @@ static void defineVariable(uint8_t global) {
 }
 
 static uint8_t identifierConstant(Token *name) {
-  printf("identifierConstant\n");
   return makeConstant(OBJ_VAL(copyString(name->start, name->length)));
 }
 
 static uint8_t parseVariable(const char* errorMessage) {
-  printf("parseVariable\n");
   consume(TOKEN_IDENTIFIER, errorMessage);
-  printf("got to here\n");
   return identifierConstant(&parser.previous);
 }
 
