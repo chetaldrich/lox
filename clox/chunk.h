@@ -10,6 +10,7 @@ typedef enum {
   OP_PRINT,
   OP_JUMP,
   OP_JUMP_IF_FALSE,
+  OP_LOOP,
   OP_ADD,
   OP_SUBTRACT,
   OP_MULTIPLY,
